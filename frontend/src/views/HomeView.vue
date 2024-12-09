@@ -1,20 +1,13 @@
-<!-- src/views/Home.vue -->
+<!-- src/views/HomeView.vue -->
 <template>
-    <div>
-      <h1>Welcome to the Education Management System</h1>
-      <p>Manage students, teachers, and schedules efficiently.</p>
-    </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'HomeView'
-  }
-  </script>
-  
-  <style scoped>
-  h1 {
-    margin-top: 2rem;
-  }
-  </style>
-  
+  <div>
+    <h1>Welcome to the Home Page</h1>
+    <!-- Basit bir metin ekleyerek sayfanın gerçekten render edildiğini test edebilirsiniz -->
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HomeView'
+}
+</script>
