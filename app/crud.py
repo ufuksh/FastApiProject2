@@ -1,32 +1,54 @@
 # app/crud.py
 from sqlalchemy.orm import Session
-from . import models, schemas
+from . import models, schemas, security
+from typing import List
+from uuid import UUID
 
-def get_student(db: Session, student_id: str):
+# Student CRUD
+def get_student(db: Session, student_id: UUID):
     return db.query(models.Student).filter(models.Student.id == student_id).first()
 
 def get_students(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Student).offset(skip).limit(limit).all()
 
 def create_student(db: Session, student: schemas.StudentCreate):
-    db_student = models.Student(**student.dict())
+    db_student = models.Student(name=student.name, email=student.email)
     db.add(db_student)
     db.commit()
     db.refresh(db_student)
     return db_student
 
-def update_student(db: Session, student_id: str, student: schemas.StudentCreate):
-    db_student = get_student(db, student_id)
-    if db_student:
-        for key, value in student.dict().items():
-            setattr(db_student, key, value)
-        db.commit()
-        db.refresh(db_student)
-    return db_student
+# Teacher CRUD
+def get_teacher(db: Session, teacher_id: UUID):
+    return db.query(models.Teacher).filter(models.Teacher.id == teacher_id).first()
 
-def delete_student(db: Session, student_id: str):
-    db_student = get_student(db, student_id)
-    if db_student:
-        db.delete(db_student)
-        db.commit()
-    return db_student
+def get_teachers(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Teacher).offset(skip).limit(limit).all()
+
+def create_teacher(db: Session, teacher: schemas.TeacherCreate):
+    db_teacher = models.Teacher(name=teacher.name, email=teacher.email)
+    db.add(db_teacher)
+    db.commit()
+    db.refresh(db_teacher)
+    return db_teacher
+
+# Schedule CRUD
+def get_schedule(db: Session, schedule_id: UUID):
+    return db.query(models.Schedule).filter(models.Schedule.id == schedule_id).first()
+
+def get_schedules(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Schedule).offset(skip).limit(limit).all()
+
+def create_schedule(db: Session, schedule: schemas.ScheduleCreate):
+    db_schedule = models.Schedule(
+        title=schedule.title,
+        description=schedule.description,
+        start_time=schedule.start_time,
+        end_time=schedule.end_time,
+        student_id=schedule.student_id,
+        teacher_id=schedule.teacher_id
+    )
+    db.add(db_schedule)
+    db.commit()
+    db.refresh(db_schedule)
+    return db_schedule

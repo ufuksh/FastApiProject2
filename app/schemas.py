@@ -1,50 +1,62 @@
 # app/schemas.py
-from pydantic import BaseModel, EmailStr, Field
-from uuid import UUID
-from datetime import date
+from pydantic import BaseModel, EmailStr
 from typing import List, Optional
+from uuid import UUID
+from datetime import datetime
 
+# Student Schemas
 class StudentBase(BaseModel):
-    first_name: str
-    last_name: str
-    date_of_birth: date
-    grade: str
-    contact_info: Optional[EmailStr]
+    name: str
+    email: EmailStr
 
 class StudentCreate(StudentBase):
     pass
 
-class StudentRead(StudentBase):
+class Student(StudentBase):
     id: UUID
+    created_at: datetime
+    schedules: List["Schedule"] = []
+
     class Config:
         orm_mode = True
 
+# Teacher Schemas
 class TeacherBase(BaseModel):
-    first_name: str
-    last_name: str
-    subject_specialization: str
-    contact_info: Optional[EmailStr]
+    name: str
+    email: EmailStr
 
 class TeacherCreate(TeacherBase):
     pass
 
-class TeacherRead(TeacherBase):
+class Teacher(TeacherBase):
     id: UUID
+    created_at: datetime
+    schedules: List["Schedule"] = []
+
     class Config:
         orm_mode = True
 
-class ClassScheduleBase(BaseModel):
-    class_name: str
+# Schedule Schemas
+class ScheduleBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    start_time: datetime
+    end_time: datetime
+    student_id: UUID
     teacher_id: UUID
-    schedule_timings: str
-    student_ids: Optional[List[UUID]] = []
 
-class ClassScheduleCreate(ClassScheduleBase):
+class ScheduleCreate(ScheduleBase):
     pass
 
-class ClassScheduleRead(ClassScheduleBase):
+class Schedule(ScheduleBase):
     id: UUID
-    teacher: TeacherRead
-    students: List[StudentRead] = []
+    created_at: datetime
+    student: Student
+    teacher: Teacher
+
     class Config:
         orm_mode = True
+
+# Update for forward references
+Student.update_forward_refs()
+Teacher.update_forward_refs()
