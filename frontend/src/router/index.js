@@ -1,11 +1,11 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import Login from '../views/Login.vue'
-import Register from '../views/Register.vue'
-import Students from '../views/Students.vue'
-import Teachers from '../views/Teachers.vue'
-import Schedules from '../views/Schedules.vue'
+import Home from '../views/HomeView.vue'
+import Login from '../views/LoginPage.vue'
+import Register from '../views/RegisterPage.vue'
+import Students from '../views/StudentsPage.vue'
+import Teachers from '../views/TeachersPage.vue'
+import Schedules from '../views/ClassSchedules.vue'
 import store from '../store'
 
 const routes = [
