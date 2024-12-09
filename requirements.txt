@@ -1,0 +1,2 @@
+DATABASE_URL=mysql+pymysql://school_user:StrongPassword123!@localhost/school_db
+debug=True
