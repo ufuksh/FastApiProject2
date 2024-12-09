@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
 
-from .. import schemas, crud, dependencies
+from .. import schemas, crud
 from ..database import SessionLocal
 
 router = APIRouter(
