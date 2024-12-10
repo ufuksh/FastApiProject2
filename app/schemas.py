@@ -1,4 +1,5 @@
 # app/schemas.py
+from __future__ import annotations  # For forward references in Python 3.7+
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from uuid import UUID
@@ -15,10 +16,10 @@ class StudentCreate(StudentBase):
 class Student(StudentBase):
     id: UUID
     created_at: datetime
-    schedules: List["Schedule"] = []
+    schedules: List[Schedule] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Teacher Schemas
 class TeacherBase(BaseModel):
@@ -31,10 +32,10 @@ class TeacherCreate(TeacherBase):
 class Teacher(TeacherBase):
     id: UUID
     created_at: datetime
-    schedules: List["Schedule"] = []
+    schedules: List[Schedule] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Schedule Schemas
 class ScheduleBase(BaseModel):
@@ -55,8 +56,9 @@ class Schedule(ScheduleBase):
     teacher: Teacher
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Update for forward references
 Student.update_forward_refs()
 Teacher.update_forward_refs()
+Schedule.update_forward_refs()
