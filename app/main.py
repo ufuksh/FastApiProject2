@@ -1,37 +1,32 @@
+import os
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from .routers import students, teachers, schedules  # Diğer router'larınız
+from .routers import students, teachers, schedules
 
 app = FastAPI(
     title="FastAPI Project",
     description="API Documentation for FastAPI Project",
     version="1.0.0",
+    terms_of_service="http://example.com/terms/",
+    contact={
+        "name": "Support",
+        "url": "http://example.com/contact/",
+        "email": "support@example.com",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
 )
 
-# CORS ayarları
-origins = [
-    "http://localhost:8080",  # Geliştirme sırasında Vue.js uygulamanızın çalıştığı adres
-    # Üretim ortamında frontend'inizin URL'sini ekleyin, örneğin:
-    # "https://your-production-domain.com",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Router'ları ekleyin
+# API rotalarını dahil ediyoruz
 app.include_router(students.router)
 app.include_router(teachers.router)
 app.include_router(schedules.router)
 
-# Vue.js build dosyalarını sunma
-app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="frontend")
+# Vue dist klasörünü absolute bir yol ile mount ediyoruz
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DIST_DIR = os.path.join(BASE_DIR, "frontend", "dist")
 
-@app.get("/api/health")
-def read_health():
-    return {"status": "ok"}
+# StaticFiles mount işlemi
+app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="static")
