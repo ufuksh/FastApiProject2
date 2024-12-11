@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from .routers import students, teachers, schedules
+from .routers import students, teachers, schedules, auth
 
 app = FastAPI(
     title="FastAPI Project",
@@ -23,7 +23,7 @@ app = FastAPI(
 app.include_router(students.router)
 app.include_router(teachers.router)
 app.include_router(schedules.router)
-
+app.include_router(auth.router)
 # Vue dist klasörünü absolute bir yol ile mount ediyoruz
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIST_DIR = os.path.join(BASE_DIR, "frontend", "dist")
