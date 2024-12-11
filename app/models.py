@@ -1,18 +1,17 @@
-# app/models.py
 import uuid
-from sqlalchemy import Column, String, ForeignKey, DateTime
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, ForeignKey, DateTime, Integer
 from sqlalchemy.orm import relationship
-from .database import Base
-from sqlalchemy_utils import UUIDType, ChoiceType
+from sqlalchemy_utils import UUIDType
 from datetime import datetime
+from .database import Base
+
 
 class Student(Base):
     __tablename__ = "students"
 
     id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
-    name = Column(String, index=True, nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String(255), index=True, nullable=False)  # String uzunluğu eklendi
+    email = Column(String(255), unique=True, index=True, nullable=False)  # String uzunluğu eklendi
     created_at = Column(DateTime, default=datetime.utcnow)
 
     schedules = relationship("Schedule", back_populates="student")
@@ -22,8 +21,8 @@ class Teacher(Base):
     __tablename__ = "teachers"
 
     id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
-    name = Column(String, index=True, nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String(255), index=True, nullable=False)  # String uzunluğu eklendi
+    email = Column(String(255), unique=True, index=True, nullable=False)  # String uzunluğu eklendi
     created_at = Column(DateTime, default=datetime.utcnow)
 
     schedules = relationship("Schedule", back_populates="teacher")
@@ -33,8 +32,8 @@ class Schedule(Base):
     __tablename__ = "schedules"
 
     id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
-    title = Column(String, index=True, nullable=False)
-    description = Column(String, nullable=True)
+    title = Column(String(255), index=True, nullable=False)  # String uzunluğu eklendi
+    description = Column(String(255), nullable=True)  # String uzunluğu eklendi
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
     student_id = Column(UUIDType(binary=False), ForeignKey("students.id"), nullable=False)
