@@ -10,14 +10,15 @@ app = FastAPI()
 # ----------------------------
 # Statik Dosyaların Servis Edilmesi
 # ----------------------------
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DIST_DIR = os.path.join(BASE_DIR, "frontend", "dist")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DIST_DIR = os.path.join(BASE_DIR, "..", "frontend", "dist")
 
-# Statik dosyaları doğru URL path'ine mount ediyoruz
-app.mount("/static", StaticFiles(directory=DIST_DIR), name="static")
+# CSS ve JS klasörlerini ayrı mount ediyoruz
+app.mount("/css", StaticFiles(directory=os.path.join(DIST_DIR, "css")), name="css")
+app.mount("/js", StaticFiles(directory=os.path.join(DIST_DIR, "js")), name="js")
 
-# Vue.js dist klasörünü "/" kök dizinine mount ediyoruz
-app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="static_root")
+# Tüm dist klasörünü kök dizine mount ediyoruz
+app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="root")
 
 # ----------------------------
 # Router'ların Dahil Edilmesi
@@ -32,8 +33,4 @@ app.include_router(users.router)
 # ----------------------------
 @app.get("/{full_path:path}")
 async def catch_all(full_path: str):
-    """
-    Vue.js tarafından ele alınmayan tüm rotalar için index.html döner.
-    """
-    index_file = os.path.join(DIST_DIR, "index.html")
-    return FileResponse(index_file)
+    return FileResponse(os.path.join(DIST_DIR, "index.html"))
