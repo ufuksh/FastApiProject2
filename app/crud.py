@@ -7,48 +7,19 @@ from uuid import UUID
 # -----------------------------
 
 def get_user_by_username(db: Session, username: str):
-    """
-    Retrieve a user by their username.
-
-    :param db: Database session
-    :param username: Username to search for
-    :return: User object or None if not found
-    """
     return db.query(models.User).filter(models.User.username == username).first()
 
 def get_user_by_id(db: Session, user_id: UUID):
-    """
-    Retrieve a user by their ID.
-
-    :param db: Database session
-    :param user_id: UUID of the user
-    :return: User object or None if not found
-    """
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
-    """
-    Retrieve multiple users with pagination.
-
-    :param db: Database session
-    :param skip: Number of records to skip
-    :param limit: Maximum number of records to return
-    :return: List of User objects
-    """
     return db.query(models.User).offset(skip).limit(limit).all()
 
 def create_user(db: Session, user: schemas.UserCreate):
-    """
-    Create a new user.
-
-    :param db: Database session
-    :param user: UserCreate schema containing user details
-    :return: Created User object
-    """
     db_user = models.User(
         username=user.username,
         email=user.email,
-        hashed_password=user.hashed_password  # Ensure you hash the password before passing it here
+        hashed_password=user.password  # Hashing should be done before passing
     )
     db.add(db_user)
     db.commit()
@@ -56,35 +27,19 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 def update_user(db: Session, user_id: UUID, user_update: schemas.UserUpdate):
-    """
-    Update an existing user's information.
-
-    :param db: Database session
-    :param user_id: UUID of the user to update
-    :param user_update: UserUpdate schema containing updated fields
-    :return: Updated User object or None if not found
-    """
     db_user = get_user_by_id(db, user_id)
     if db_user:
         if user_update.username:
             db_user.username = user_update.username
         if user_update.email:
             db_user.email = user_update.email
-        if user_update.hashed_password:
-            db_user.hashed_password = user_update.hashed_password  # Ensure password is hashed
-        # Add other fields as necessary
+        if user_update.password:
+            db_user.hashed_password = user_update.password  # Ensure password is hashed
         db.commit()
         db.refresh(db_user)
     return db_user
 
 def delete_user(db: Session, user_id: UUID):
-    """
-    Delete a user by their ID.
-
-    :param db: Database session
-    :param user_id: UUID of the user to delete
-    :return: Deleted User object or None if not found
-    """
     db_user = get_user_by_id(db, user_id)
     if db_user:
         db.delete(db_user)
@@ -101,26 +56,35 @@ def get_student(db: Session, student_id: UUID):
 def get_students(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Student).offset(skip).limit(limit).all()
 
-def create_student(db: Session, student: schemas.Student):
+def create_student(db: Session, student: schemas.StudentCreate):
     db_student = models.Student(
-        id=student.id,
-        name=student.name,
+        first_name=student.first_name,
+        last_name=student.last_name,
         email=student.email,
-        created_at=student.created_at
+        date_of_birth=student.date_of_birth,
+        grade=student.grade,
+        contact_info=student.contact_info
     )
     db.add(db_student)
     db.commit()
     db.refresh(db_student)
     return db_student
 
-def update_student(db: Session, student_id: UUID, student: schemas.StudentCreate):
+def update_student(db: Session, student_id: UUID, student: schemas.StudentUpdate):
     db_student = get_student(db, student_id)
     if db_student:
-        db_student.first_name = student.first_name
-        db_student.last_name = student.last_name
-        db_student.date_of_birth = student.date_of_birth
-        db_student.grade = student.grade
-        db_student.contact_info = student.contact_info
+        if student.first_name:
+            db_student.first_name = student.first_name
+        if student.last_name:
+            db_student.last_name = student.last_name
+        if student.email:
+            db_student.email = student.email
+        if student.date_of_birth:
+            db_student.date_of_birth = student.date_of_birth
+        if student.grade:
+            db_student.grade = student.grade
+        if student.contact_info:
+            db_student.contact_info = student.contact_info
         db.commit()
         db.refresh(db_student)
     return db_student
@@ -146,6 +110,7 @@ def create_teacher(db: Session, teacher: schemas.TeacherCreate):
     db_teacher = models.Teacher(
         first_name=teacher.first_name,
         last_name=teacher.last_name,
+        email=teacher.email,
         subject_specialization=teacher.subject_specialization,
         contact_info=teacher.contact_info
     )
@@ -154,13 +119,19 @@ def create_teacher(db: Session, teacher: schemas.TeacherCreate):
     db.refresh(db_teacher)
     return db_teacher
 
-def update_teacher(db: Session, teacher_id: UUID, teacher: schemas.TeacherCreate):
+def update_teacher(db: Session, teacher_id: UUID, teacher: schemas.TeacherUpdate):
     db_teacher = get_teacher(db, teacher_id)
     if db_teacher:
-        db_teacher.first_name = teacher.first_name
-        db_teacher.last_name = teacher.last_name
-        db_teacher.subject_specialization = teacher.subject_specialization
-        db_teacher.contact_info = teacher.contact_info
+        if teacher.first_name:
+            db_teacher.first_name = teacher.first_name
+        if teacher.last_name:
+            db_teacher.last_name = teacher.last_name
+        if teacher.email:
+            db_teacher.email = teacher.email
+        if teacher.subject_specialization:
+            db_teacher.subject_specialization = teacher.subject_specialization
+        if teacher.contact_info:
+            db_teacher.contact_info = teacher.contact_info
         db.commit()
         db.refresh(db_teacher)
     return db_teacher
@@ -184,21 +155,33 @@ def get_schedules(db: Session, skip: int = 0, limit: int = 100):
 
 def create_schedule(db: Session, schedule: schemas.ScheduleCreate):
     db_schedule = models.ClassSchedule(
-        class_name=schedule.class_name,
-        assigned_teacher=schedule.assigned_teacher,
-        schedule_timings=schedule.schedule_timings
+        title=schedule.title,
+        description=schedule.description,
+        start_time=schedule.start_time,
+        end_time=schedule.end_time,
+        student_id=schedule.student_id,
+        teacher_id=schedule.teacher_id
     )
     db.add(db_schedule)
     db.commit()
     db.refresh(db_schedule)
     return db_schedule
 
-def update_schedule(db: Session, schedule_id: UUID, schedule: schemas.ScheduleCreate):
+def update_schedule(db: Session, schedule_id: UUID, schedule: schemas.ScheduleUpdate):
     db_schedule = get_schedule(db, schedule_id)
     if db_schedule:
-        db_schedule.class_name = schedule.class_name
-        db_schedule.assigned_teacher = schedule.assigned_teacher
-        db_schedule.schedule_timings = schedule.schedule_timings
+        if schedule.title:
+            db_schedule.title = schedule.title
+        if schedule.description:
+            db_schedule.description = schedule.description
+        if schedule.start_time:
+            db_schedule.start_time = schedule.start_time
+        if schedule.end_time:
+            db_schedule.end_time = schedule.end_time
+        if schedule.student_id:
+            db_schedule.student_id = schedule.student_id
+        if schedule.teacher_id:
+            db_schedule.teacher_id = schedule.teacher_id
         db.commit()
         db.refresh(db_schedule)
     return db_schedule
