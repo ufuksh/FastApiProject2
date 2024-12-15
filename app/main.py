@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from .routers import students, teachers, schedules, users
 
 # FastAPI uygulaması oluşturuluyor
@@ -57,4 +58,18 @@ def read_root():
     """
     Health check endpoint: API'nin çalıştığını doğrular.
     """
-    return {"message": "API çalışıyo!"}
+    return {"message": "API çalışıyor!"}
+
+# ----------------------------
+# Vue.js Catch-All Endpoint
+# ----------------------------
+@app.get("/{full_path:path}")
+async def catch_all(full_path: str):
+    """
+    Vue.js uygulamasını desteklemek için bilinmeyen rotaları yakalar ve
+    index.html dosyasını döndürür.
+    """
+    index_file = os.path.join(DIST_DIR, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return {"message": "Not Found"}, 404
