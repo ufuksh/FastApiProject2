@@ -16,10 +16,11 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
 
 def create_user(db: Session, user: schemas.UserCreate):
+    hashed_password = user.password  # Burada hashleme yapılmalı
     db_user = models.User(
         username=user.username,
         email=user.email,
-        hashed_password=user.password  # Hashing should be done before passing
+        hashed_password=hashed_password
     )
     db.add(db_user)
     db.commit()
@@ -29,12 +30,8 @@ def create_user(db: Session, user: schemas.UserCreate):
 def update_user(db: Session, user_id: UUID, user_update: schemas.UserUpdate):
     db_user = get_user_by_id(db, user_id)
     if db_user:
-        if user_update.username:
-            db_user.username = user_update.username
-        if user_update.email:
-            db_user.email = user_update.email
         if user_update.password:
-            db_user.hashed_password = user_update.password  # Ensure password is hashed
+            db_user.hashed_password = user_update.password  # Burada hashleme yapılmalı
         db.commit()
         db.refresh(db_user)
     return db_user
