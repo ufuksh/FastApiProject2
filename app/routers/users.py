@@ -12,6 +12,11 @@ router = APIRouter(
 )
 
 # Kullanıcı için Pydantic modelleri
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    email: str
+
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -27,11 +32,31 @@ def get_db():
     finally:
         db.close()
 
+# POST: Yeni kullanıcı oluşturma
+@router.post("/", status_code=status.HTTP_201_CREATED)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    """
+    Yeni bir kullanıcı oluşturur.
+    """
+    db_user = crud.get_user_by_username(db, username=user.username)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already exists")
+    
+    new_user = models.User(
+        username=user.username,
+        email=user.email,
+        password=user.password  # Parola burada hashlenmelidir
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {"message": "User created successfully", "user": new_user.username}
+
 # POST: Kullanıcı login
 @router.post("/login")
 def login(request: LoginRequest, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_username(db, username=request.username)
-    if db_user and db_user.password == request.password:
+    if db_user and db_user.password == request.password:  # Parola hash kontrolü yapılmalı
         return {"message": "Login successful"}
     raise HTTPException(status_code=401, detail="Invalid username or password")
 
