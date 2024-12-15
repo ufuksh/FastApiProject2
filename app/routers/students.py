@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
 from uuid import UUID
-from datetime import datetime  # Zaman damgası için gerekli
-import uuid  # UUID oluşturmak için
+from typing import List
 
 from .. import schemas, crud
 from ..database import SessionLocal
@@ -31,24 +29,15 @@ def get_db():
 # Öğrenci CRUD İşlemleri
 # -----------------------------
 
-# POST: Yeni öğrenci oluşturma
-@router.post("/", response_model=schemas.Student, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.StudentResponse, status_code=status.HTTP_201_CREATED)
 def create_student(student: schemas.StudentCreate, db: Session = Depends(get_db)):
     """
     Yeni bir öğrenci kaydı oluşturur.
     """
-    # UUID'yi burada oluştur
-    new_student = schemas.Student(
-        id=uuid.uuid4(),
-        name=student.name,
-        email=student.email,
-        created_at=datetime.utcnow()
-    )
-    return crud.create_student(db=db, student=new_student)
+    return crud.create_student(db=db, student=student)
 
 
-# GET: Tek bir öğrenci okuma
-@router.get("/{student_id}", response_model=schemas.Student)
+@router.get("/{student_id}", response_model=schemas.StudentResponse)
 def read_student(student_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir öğrenci kaydını ID'ye göre getirir.
@@ -58,8 +47,8 @@ def read_student(student_id: UUID, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Student not found")
     return db_student
 
-# GET: Tüm öğrencileri listeleme
-@router.get("/", response_model=List[schemas.Student])
+
+@router.get("/", response_model=List[schemas.StudentResponse])
 def read_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
     Tüm öğrenci kayıtlarını getirir.
@@ -67,9 +56,9 @@ def read_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     students = crud.get_students(db, skip=skip, limit=limit)
     return students
 
-# PUT: Öğrenci güncelleme
-@router.put("/{student_id}", response_model=schemas.Student)
-def update_student(student_id: UUID, student: schemas.StudentCreate, db: Session = Depends(get_db)):
+
+@router.put("/{student_id}", response_model=schemas.StudentResponse)
+def update_student(student_id: UUID, student: schemas.StudentUpdate, db: Session = Depends(get_db)):
     """
     Belirli bir öğrenci kaydını günceller.
     """
@@ -80,7 +69,7 @@ def update_student(student_id: UUID, student: schemas.StudentCreate, db: Session
     updated_student = crud.update_student(db=db, student_id=student_id, student=student)
     return updated_student
 
-# DELETE: Öğrenci silme
+
 @router.delete("/{student_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_student(student_id: UUID, db: Session = Depends(get_db)):
     """
