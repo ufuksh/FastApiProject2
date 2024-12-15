@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from uuid import UUID
+from passlib.context import CryptContext  # Parola hashleme için
 
 from .. import crud, models
 from ..database import SessionLocal
@@ -11,7 +12,12 @@ router = APIRouter(
     tags=["users"],
 )
 
-# Kullanıcı için Pydantic modelleri
+# Parola hashleme context'i
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# -----------------------------
+# Kullanıcı için Pydantic Modelleri
+# -----------------------------
 class UserCreate(BaseModel):
     username: str
     password: str
@@ -24,7 +30,9 @@ class LoginRequest(BaseModel):
 class UserUpdate(BaseModel):
     password: str
 
-# Bağımlılık fonksiyonu
+# -----------------------------
+# Bağımlılık Fonksiyonu
+# -----------------------------
 def get_db():
     db = SessionLocal()
     try:
@@ -32,46 +40,72 @@ def get_db():
     finally:
         db.close()
 
-# POST: Yeni kullanıcı oluşturma
+# -----------------------------
+# Yeni Kullanıcı Oluşturma (POST)
+# -----------------------------
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     """
     Yeni bir kullanıcı oluşturur.
     """
+    # Kullanıcı adı kontrolü
     db_user = crud.get_user_by_username(db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already exists")
     
+    # Parola hashleme
+    hashed_password = pwd_context.hash(user.password)
+    
+    # Yeni kullanıcı ekleme
     new_user = models.User(
         username=user.username,
         email=user.email,
-        password=user.password  # Parola burada hashlenmelidir
+        hashed_password=hashed_password
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return {"message": "User created successfully", "user": new_user.username}
 
-# POST: Kullanıcı login
+# -----------------------------
+# Kullanıcı Giriş (POST)
+# -----------------------------
 @router.post("/login")
 def login(request: LoginRequest, db: Session = Depends(get_db)):
+    """
+    Kullanıcı girişini kontrol eder.
+    """
     db_user = crud.get_user_by_username(db, username=request.username)
-    if db_user and db_user.password == request.password:  # Parola hash kontrolü yapılmalı
-        return {"message": "Login successful"}
-    raise HTTPException(status_code=401, detail="Invalid username or password")
+    if not db_user or not pwd_context.verify(request.password, db_user.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    return {"message": "Login successful"}
 
-# PUT: Kullanıcı güncelleme
+# -----------------------------
+# Kullanıcı Güncelleme (PUT)
+# -----------------------------
 @router.put("/{user_id}", response_model=dict)
 def update_user(user_id: UUID, user: UserUpdate, db: Session = Depends(get_db)):
+    """
+    Mevcut bir kullanıcıyı günceller.
+    """
     db_user = crud.get_user(db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
-    updated_user = crud.update_user(db, user_id=user_id, password=user.password)
-    return {"message": "User updated successfully", "user": updated_user.username}
+    
+    # Parola güncelleme (hashlenmiş şekilde)
+    db_user.hashed_password = pwd_context.hash(user.password)
+    db.commit()
+    db.refresh(db_user)
+    return {"message": "User updated successfully", "user": db_user.username}
 
-# DELETE: Kullanıcı silme
+# -----------------------------
+# Kullanıcı Silme (DELETE)
+# -----------------------------
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(user_id: UUID, db: Session = Depends(get_db)):
+    """
+    Mevcut bir kullanıcıyı siler.
+    """
     db_user = crud.get_user(db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
