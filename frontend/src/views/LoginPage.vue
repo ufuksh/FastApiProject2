@@ -2,7 +2,7 @@
   <div>
     <h2>Login</h2>
     <form @submit.prevent="handleLogin">
-      <input v-model="user.email" placeholder="Email" required>
+      <input v-model="user.username" placeholder="Username" required>
       <input type="password" v-model="user.password" placeholder="Password" required>
       <button type="submit">Login</button>
     </form>
@@ -20,7 +20,7 @@ export default {
   setup() {
     const store = useStore()
     const router = useRouter()
-    const user = { email: '', password: '' }
+    const user = { username: '', password: '' } // username olarak değiştirildi
     const error = ''
 
     const handleLogin = async () => {
@@ -29,6 +29,7 @@ export default {
         store.commit('setToken', response.data.token)
         router.push('/')
       } catch (err) {
+        console.error(err) // Hata loglama
         this.error = 'Login failed.'
       }
     }
