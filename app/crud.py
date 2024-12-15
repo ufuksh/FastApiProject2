@@ -20,7 +20,7 @@ def get_user_by_id(db: Session, user_id: UUID):
     """
     Kullanıcıyı ID'ye göre getirir.
     """
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    return db.query(models.User).filter(models.User.id == str(user_id)).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     """
