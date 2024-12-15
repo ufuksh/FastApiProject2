@@ -1,22 +1,38 @@
 from sqlalchemy.orm import Session
 from . import models, schemas
 from uuid import UUID
+from passlib.context import CryptContext  # Parola hashleme için
+
+# Parola hashleme context'i
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # -----------------------------
 # User CRUD
 # -----------------------------
 
 def get_user_by_username(db: Session, username: str):
+    """
+    Kullanıcıyı kullanıcı adına göre getirir.
+    """
     return db.query(models.User).filter(models.User.username == username).first()
 
 def get_user_by_id(db: Session, user_id: UUID):
+    """
+    Kullanıcıyı ID'ye göre getirir.
+    """
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
+    """
+    Tüm kullanıcıları getirir (sayfalama destekli).
+    """
     return db.query(models.User).offset(skip).limit(limit).all()
 
 def create_user(db: Session, user: schemas.UserCreate):
-    hashed_password = user.password  # Burada hashleme yapılmalı
+    """
+    Yeni bir kullanıcı oluşturur.
+    """
+    hashed_password = pwd_context.hash(user.password)  # Parolayı hashle
     db_user = models.User(
         username=user.username,
         email=user.email,
@@ -28,15 +44,21 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 def update_user(db: Session, user_id: UUID, user_update: schemas.UserUpdate):
+    """
+    Mevcut bir kullanıcının bilgilerini günceller.
+    """
     db_user = get_user_by_id(db, user_id)
     if db_user:
         if user_update.password:
-            db_user.hashed_password = user_update.password  # Burada hashleme yapılmalı
+            db_user.hashed_password = pwd_context.hash(user_update.password)  # Yeni parolayı hashle
         db.commit()
         db.refresh(db_user)
     return db_user
 
 def delete_user(db: Session, user_id: UUID):
+    """
+    Mevcut bir kullanıcıyı siler.
+    """
     db_user = get_user_by_id(db, user_id)
     if db_user:
         db.delete(db_user)
