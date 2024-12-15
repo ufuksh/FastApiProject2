@@ -35,10 +35,15 @@ def create_student(student: schemas.StudentCreate, db: Session = Depends(get_db)
     """
     Yeni bir öğrenci kaydı oluşturur.
     """
-    db_student = crud.get_student(db, student_id=student.id)
-    if db_student:
-        raise HTTPException(status_code=400, detail="Student already registered")
-    return crud.create_student(db=db, student=student)
+    # UUID'yi burada oluştur
+    new_student = schemas.Student(
+        id=uuid.uuid4(),
+        name=student.name,
+        email=student.email,
+        created_at=datetime.utcnow()
+    )
+    return crud.create_student(db=db, student=new_student)
+
 
 # GET: Tek bir öğrenci okuma
 @router.get("/{student_id}", response_model=schemas.Student)

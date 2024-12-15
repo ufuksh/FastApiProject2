@@ -11,18 +11,18 @@ def get_student(db: Session, student_id: UUID):
 def get_students(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Student).offset(skip).limit(limit).all()
 
-def create_student(db: Session, student: schemas.StudentCreate):
+def create_student(db: Session, student: schemas.Student):
     db_student = models.Student(
-        first_name=student.first_name,
-        last_name=student.last_name,
-        date_of_birth=student.date_of_birth,
-        grade=student.grade,
-        contact_info=student.contact_info
+        id=student.id,
+        name=student.name,
+        email=student.email,
+        created_at=student.created_at
     )
     db.add(db_student)
     db.commit()
     db.refresh(db_student)
     return db_student
+
 
 def update_student(db: Session, student_id: UUID, student: schemas.StudentCreate):
     db_student = get_student(db, student_id)

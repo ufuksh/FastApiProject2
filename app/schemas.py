@@ -11,9 +11,16 @@ class StudentBase(BaseModel):
     name: str
     email: EmailStr
 
-# Yeni öğrenci oluşturma
 class StudentCreate(StudentBase):
     pass
+
+class Student(StudentBase):
+    id: UUID
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 
 # Öğrenci güncelleme
 class StudentUpdate(BaseModel):
