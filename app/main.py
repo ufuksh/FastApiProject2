@@ -4,16 +4,18 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from .routers import students, teachers, schedules, users
 
+# FastAPI uygulaması
 app = FastAPI()
 
 # ----------------------------
 # Statik Dosyaların Servis Edilmesi
 # ----------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DIST_DIR = os.path.join(BASE_DIR, "..", "frontend", "dist")
+DIST_DIR = os.path.join(BASE_DIR, "frontend", "dist")  # Önce "frontend/dist" dizinini hedefle
 
-# Vue.js build klasörünü "/static" altında servis et
-app.mount("/static", StaticFiles(directory=DIST_DIR), name="static")
+# Vue.js build klasörünü kök dizine mount ediyoruz
+app.mount("/static", StaticFiles(directory=os.path.join(DIST_DIR, "static")), name="static")
+app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="root")
 
 # ----------------------------
 # Router'ların Dahil Edilmesi
@@ -28,10 +30,5 @@ app.include_router(users.router)
 # ----------------------------
 @app.get("/{full_path:path}")
 async def catch_all(full_path: str):
-    """
-    Bilinmeyen tüm rotaları Vue.js uygulamasının index.html dosyasına yönlendirir.
-    """
     index_file = os.path.join(DIST_DIR, "index.html")
-    if os.path.exists(index_file):
-        return FileResponse(index_file)
-    return {"detail": "Not Found"}, 404
+    return FileResponse(index_file)
