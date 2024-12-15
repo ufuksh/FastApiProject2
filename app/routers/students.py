@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
+from datetime import datetime  # Zaman damgası için gerekli
+import uuid  # UUID oluşturmak için
 
 from .. import schemas, crud
 from ..database import SessionLocal
