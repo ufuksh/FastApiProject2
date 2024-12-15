@@ -1,69 +1,103 @@
-from __future__ import annotations 
+from __future__ import annotations
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 
 # -------------------------
+# User Schemas
+# -------------------------
+
+class UserBase(BaseModel):
+    username: str
+    email: EmailStr
+
+class UserCreate(UserBase):
+    password: str  # Plain password; hash before storing
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None  # If password can be updated
+
+class UserResponse(UserBase):
+    id: UUID
+    is_active: bool
+    is_superuser: bool
+
+    class Config:
+        orm_mode = True
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+# -------------------------
 # Student Schemas
 # -------------------------
+
 class StudentBase(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     email: EmailStr
+    date_of_birth: Optional[datetime] = None
+    grade: Optional[str] = None
+    contact_info: Optional[str] = None
 
 class StudentCreate(StudentBase):
     pass
 
-class Student(StudentBase):
-    id: UUID
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-# Öğrenci güncelleme
 class StudentUpdate(BaseModel):
-    name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     email: Optional[EmailStr] = None
+    date_of_birth: Optional[datetime] = None
+    grade: Optional[str] = None
+    contact_info: Optional[str] = None
 
-# Öğrenci okuma
-class Student(StudentBase):
+class StudentResponse(StudentBase):
     id: UUID
     created_at: datetime
-    schedules: List[Schedule] = []
+    updated_at: datetime
+    schedules: List[ScheduleResponse] = []
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # -------------------------
 # Teacher Schemas
 # -------------------------
-class TeacherBase(BaseModel):
-    name: str
-    email: EmailStr
 
-# Yeni öğretmen oluşturma
+class TeacherBase(BaseModel):
+    first_name: str
+    last_name: str
+    email: EmailStr
+    subject_specialization: Optional[str] = None
+    contact_info: Optional[str] = None
+
 class TeacherCreate(TeacherBase):
     pass
 
-# Öğretmen güncelleme
 class TeacherUpdate(BaseModel):
-    name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     email: Optional[EmailStr] = None
+    subject_specialization: Optional[str] = None
+    contact_info: Optional[str] = None
 
-# Öğretmen okuma
-class Teacher(TeacherBase):
+class TeacherResponse(TeacherBase):
     id: UUID
     created_at: datetime
-    schedules: List[Schedule] = []
+    updated_at: datetime
+    schedules: List[ScheduleResponse] = []
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # -------------------------
 # Schedule Schemas
 # -------------------------
+
 class ScheduleBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -72,11 +106,9 @@ class ScheduleBase(BaseModel):
     student_id: UUID
     teacher_id: UUID
 
-# Yeni program oluşturma
 class ScheduleCreate(ScheduleBase):
     pass
 
-# Program güncelleme
 class ScheduleUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -85,19 +117,20 @@ class ScheduleUpdate(BaseModel):
     student_id: Optional[UUID] = None
     teacher_id: Optional[UUID] = None
 
-# Program okuma
-class Schedule(ScheduleBase):
+class ScheduleResponse(ScheduleBase):
     id: UUID
     created_at: datetime
-    student: Student
-    teacher: Teacher
+    updated_at: datetime
+    student: StudentResponse
+    teacher: TeacherResponse
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # -------------------------
 # Forward References
 # -------------------------
-Student.update_forward_refs()
-Teacher.update_forward_refs()
-Schedule.update_forward_refs()
+# Necessary to resolve circular references between ScheduleResponse, StudentResponse, and TeacherResponse
+StudentResponse.update_forward_refs()
+TeacherResponse.update_forward_refs()
+ScheduleResponse.update_forward_refs()
