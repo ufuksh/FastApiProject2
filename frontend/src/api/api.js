@@ -10,57 +10,57 @@ const apiClient = axios.create({
 export default {
   // Öğrenci işlemleri
   getStudents() {
-    return apiClient.get("/students/students"); // /students/students olarak güncellendi
+    return apiClient.get("/students/");
   },
   createStudent(data) {
-    return apiClient.post("/students/students", data); // /students/students olarak güncellendi
+    return apiClient.post("/students/", data);
   },
-  updateStudent(id, data) {
-    return apiClient.put(`/students/students/${id}`, data); // /students/students olarak güncellendi
+  updateStudent(uuid, data) {
+    return apiClient.put(`/students/${uuid}/`, data);
   },
-  deleteStudent(id) {
-    return apiClient.delete(`/students/students/${id}`); // /students/students olarak güncellendi
+  deleteStudent(uuid) {
+    return apiClient.delete(`/students/${uuid}/`);
   },
 
   // Kullanıcı işlemleri
   getUsers() {
-    return apiClient.get("/users");
+    return apiClient.get("/users/");
   },
   createUser(data) {
-    return apiClient.post("/users", data);
+    return apiClient.post("/users/", data);
   },
-  updateUser(id, data) {
-    return apiClient.put(`/users/${id}`, data);
+  updateUser(uuid, data) {
+    return apiClient.put(`/users/${uuid}/`, data);
   },
-  deleteUser(id) {
-    return apiClient.delete(`/users/${id}`);
+  deleteUser(uuid) {
+    return apiClient.delete(`/users/${uuid}/`);
   },
 
   // Öğretmen işlemleri
   getTeachers() {
-    return apiClient.get("/teachers");
+    return apiClient.get("/teachers/");
   },
   createTeacher(data) {
-    return apiClient.post("/teachers", data);
+    return apiClient.post("/teachers/", data);
   },
-  updateTeacher(id, data) {
-    return apiClient.put(`/teachers/${id}`, data);
+  updateTeacher(uuid, data) {
+    return apiClient.put(`/teachers/${uuid}/`, data);
   },
-  deleteTeacher(id) {
-    return apiClient.delete(`/teachers/${id}`);
+  deleteTeacher(uuid) {
+    return apiClient.delete(`/teachers/${uuid}/`);
   },
 
   // Program işlemleri
   getSchedules() {
-    return apiClient.get("/schedules");
+    return apiClient.get("/schedules/");
   },
   createSchedule(data) {
-    return apiClient.post("/schedules", data);
+    return apiClient.post("/schedules/", data);
   },
-  updateSchedule(id, data) {
-    return apiClient.put(`/schedules/${id}`, data);
+  updateSchedule(uuid, data) {
+    return apiClient.put(`/schedules/${uuid}/`, data);
   },
-  deleteSchedule(id) {
-    return apiClient.delete(`/schedules/${id}`);
+  deleteSchedule(uuid) {
+    return apiClient.delete(`/schedules/${uuid}/`);
   },
 };
