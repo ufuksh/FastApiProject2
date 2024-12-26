@@ -5,27 +5,7 @@ import { useStudentStore } from "@/store/StudentStore.ts";
 const studentStore = useStudentStore();
 
 const isEdit = ref(false);
-const selectedStudent = ref({ id: null, name: "", email: "" });
-
-const getStudents = async () => {
-  await studentStore.getStudent();
-};
-
-const editStudent = (student) => {
-  isEdit.value = true;
-  selectedStudent.value = { ...student };
-};
-
-const deleted = async (id) => {
-  await studentStore.deleteStudent(id);
-};
-
-//Burası yapılacak
-const updateStudent = async () => {
-  ///await studentStore.updateStudent(selectedStudent.value);
-  isEdit.value = false;
-};
-
+const selectedStudent = ref({ id: null, first_name: "", last_name: "", email: "" });
 
 const newStudent = ref({
   first_name: "",
@@ -36,9 +16,34 @@ const newStudent = ref({
   contact_info: ""
 });
 
+// Tüm öğrencileri getir
+const getStudents = async () => {
+  await studentStore.getStudent();
+};
+
+// Yeni öğrenci oluştur
 const createNewStudent = async () => {
   await studentStore.createStudent(newStudent.value);
-  newStudent.value = { first_name: "", last_name: "", email: "", date_of_birth: "", grade: "", contact_info: "" };  // Formu temizle
+  // Formu temizle
+  newStudent.value = { first_name: "", last_name: "", email: "", date_of_birth: "", grade: "", contact_info: "" };
+};
+
+// Öğrenci düzenleme moduna geçiş
+const editStudent = (student) => {
+  isEdit.value = true;
+  selectedStudent.value = { ...student };
+};
+
+// Öğrenci güncelle
+const updateStudent = async () => {
+  await studentStore.updateStudent(selectedStudent.value);
+  isEdit.value = false;
+  selectedStudent.value = { id: null, first_name: "", last_name: "", email: "" };
+};
+
+// Öğrenci sil
+const deleteStudent = async (id) => {
+  await studentStore.deleteStudent(id);
 };
 
 onMounted(() => {
@@ -48,39 +53,75 @@ onMounted(() => {
 
 <template>
   <div class="student-form">
-    <h2>Öğrenci Ekle</h2>
-    <form @submit.prevent="createNewStudent">
+    <h2 v-if="!isEdit">Öğrenci Ekle</h2>
+    <h2 v-else>Öğrenci Güncelle</h2>
+    <form @submit.prevent="isEdit ? updateStudent() : createNewStudent()">
       <div class="form-group">
-        <label for="first_name">Ad</label>
-        <input v-model="newStudent.first_name" type="text" id="first_name" placeholder="Öğrencinin adını girin" required />
-      </div>
+  <label for="first_name">Ad</label>
+  <template v-if="isEdit">
+    <!-- Düzenleme Formu -->
+    <input v-model="selectedStudent.first_name" type="text" id="first_name" placeholder="Öğrencinin adını girin" required />
+  </template>
+  <template v-else>
+    <!-- Yeni Kayıt Formu -->
+    <input v-model="newStudent.first_name" type="text" id="first_name" placeholder="Öğrencinin adını girin" required />
+  </template>
+</div>
 
-      <div class="form-group">
-        <label for="last_name">Soyad</label>
-        <input v-model="newStudent.last_name" type="text" id="last_name" placeholder="Öğrencinin soyadını girin" required />
-      </div>
+<div class="form-group">
+  <label for="last_name">Soyad</label>
+  <template v-if="isEdit">
+    <input v-model="selectedStudent.last_name" type="text" id="last_name" placeholder="Öğrencinin soyadını girin" required />
+  </template>
+  <template v-else>
+    <input v-model="newStudent.last_name" type="text" id="last_name" placeholder="Öğrencinin soyadını girin" required />
+  </template>
+</div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input v-model="newStudent.email" type="email" id="email" placeholder="Öğrencinin email adresini girin" required />
-      </div>
+<div class="form-group">
+  <label for="email">Email</label>
+  <template v-if="isEdit">
+    <input v-model="selectedStudent.email" type="email" id="email" placeholder="Öğrencinin email adresini girin" required />
+  </template>
+  <template v-else>
+    <input v-model="newStudent.email" type="email" id="email" placeholder="Öğrencinin email adresini girin" required />
+  </template>
+</div>
 
-      <div class="form-group">
+
+      <div v-if="!isEdit" class="form-group">
         <label for="date_of_birth">Doğum Tarihi</label>
-        <input v-model="newStudent.date_of_birth" type="date" id="date_of_birth" required />
+        <input
+          v-model="newStudent.date_of_birth"
+          type="date"
+          id="date_of_birth"
+          required
+        />
       </div>
 
-      <div class="form-group">
+      <div v-if="!isEdit" class="form-group">
         <label for="grade">Sınıf</label>
-        <input v-model="newStudent.grade" type="text" id="grade" placeholder="Öğrencinin sınıfını girin" required />
+        <input
+          v-model="newStudent.grade"
+          type="text"
+          id="grade"
+          placeholder="Öğrencinin sınıfını girin"
+          required
+        />
       </div>
 
-      <div class="form-group">
+      <div v-if="!isEdit" class="form-group">
         <label for="contact_info">İletişim Bilgisi</label>
-        <input v-model="newStudent.contact_info" type="text" id="contact_info" placeholder="Öğrencinin telefon numarasını girin" required />
+        <input
+          v-model="newStudent.contact_info"
+          type="text"
+          id="contact_info"
+          placeholder="Öğrencinin telefon numarasını girin"
+          required
+        />
       </div>
 
-      <button type="submit" class="submit-btn">Ekle</button>
+      <button type="submit" class="submit-btn">{{ isEdit ? "Güncelle" : "Ekle" }}</button>
     </form>
   </div>
 
@@ -88,67 +129,54 @@ onMounted(() => {
     <h2>Öğrenci Listesi</h2>
     <table>
       <thead>
-      <tr>
-        <th>ID</th>
-        <th>Ad Soyad</th>
-        <th>Email</th>
-        <th>İşlemler</th>
-      </tr>
+        <tr>
+          <th>ID</th>
+          <th>Ad Soyad</th>
+          <th>Email</th>
+          <th>İşlemler</th>
+        </tr>
       </thead>
       <tbody>
-      <tr v-for="student in studentStore.stateStudent" :key="student.id">
-        <td>{{ student.id }}</td>
-        <td>{{ student.name }}</td>
-        <td>{{ student.email }}</td>
-        <td>
-          <button class="edit-btn" @click="editStudent(student)">Düzenle</button>
-          <button class="delete-btn" @click="deleted(student.id)">Sil</button>
-        </td>
-      </tr>
+        <tr v-for="student in studentStore.stateStudent" :key="student.id">
+          <td>{{ student.id }}</td>
+          <td>{{ student.first_name }} {{ student.last_name }}</td>
+          <td>{{ student.email }}</td>
+          <td>
+            <button class="edit-btn" @click="editStudent(student)">Düzenle</button>
+            <button class="delete-btn" @click="deleteStudent(student.id)">Sil</button>
+          </td>
+        </tr>
       </tbody>
     </table>
-  </div>
-
-  <div v-if="isEdit" class="student-form">
-    <h3>Öğrenci Güncelle</h3>
-    <form @submit.prevent="updateStudent">
-      <div class="form-group">
-        <label for="id">ID</label>
-        <input v-model="selectedStudent.id" type="text" id="id" disabled />
-      </div>
-
-      <div class="form-group">
-        <label for="name">Ad</label>
-        <input v-model="selectedStudent.name" type="text" id="name" required />
-      </div>
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input v-model="selectedStudent.email" type="email" id="email" required />
-      </div>
-
-      <button type="submit" class="submit-btn">Güncelle</button>
-    </form>
   </div>
 </template>
 
 <style scoped>
+/* Genel Stil Ayarları */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
 
+/* Öğrenci Formu */
 .student-form {
   max-width: 800px;
   margin: 50px auto;
   padding: 20px;
   background-color: #ffffff;
-  border: 1px solid #757575;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
-  color: #000000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #495057;
 }
 
 .student-form h2 {
   text-align: center;
   margin-bottom: 20px;
-  color: #000000;
+  color: #343a40;
+  font-size: 1.5rem;
 }
 
 .form-group {
@@ -159,59 +187,65 @@ onMounted(() => {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
-  color: #000000;
+  color: #495057;
 }
 
 .form-group input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #000000;
+  border: 1px solid #ced4da;
   border-radius: 4px;
   font-size: 1rem;
-  color: #000000;
+  color: #495057;
   background-color: #ffffff;
+  transition: all 0.3s;
 }
+
 .form-group input:focus {
-  border-color: #818181;
+  border-color: #80bdff;
   outline: none;
-  box-shadow: 0 0 5px rgba(57, 57, 57, 0.5);
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 .submit-btn {
   width: 100%;
   padding: 10px;
-  background-color: #ffffff;
-  color: #000000;
-  border: 1px solid #000000;
+  background-color: #007bff;
+  color: white;
+  border: none;
   font-size: 1rem;
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: all 0.3s;
 }
 
 .submit-btn:hover {
-  transform: scale(1.05);
+  background-color: #0056b3;
+  transform: scale(1.03);
 }
 
 .submit-btn:active {
+  background-color: #003865;
   transform: scale(1);
 }
+
+/* Öğrenci Tablosu */
 .student-table {
-  max-width: 800px;
-  margin: 20px auto;
+  max-width: 1000px;
+  margin: 30px auto;
   padding: 20px;
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
-  color: #000000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #495057;
 }
 
 .student-table h2 {
   text-align: center;
   margin-bottom: 20px;
-  color: #000000;
+  color: #343a40;
+  font-size: 1.5rem;
 }
 
 table {
@@ -221,55 +255,73 @@ table {
 }
 
 thead tr {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #f1f3f5;
+  color: #495057;
 }
 
 thead th {
-  padding: 10px 20px;
+  padding: 10px;
   font-weight: bold;
-  border-bottom: 1px solid #000000;
+  border-bottom: 2px solid #dee2e6;
 }
 
 tbody tr {
-  border-bottom: 1px solid #ffffff;
+  border-bottom: 1px solid #dee2e6;
 }
 
 tbody tr:nth-child(even) {
-  background-color: #eaeaea;
+  background-color: #f8f9fa;
 }
 
 tbody td {
   padding: 10px;
 }
 
-.edit-btn {
-  background-color: #1976d2;
-  color: white;
-  padding: 5px 10px;
-  margin-right: 5px;
+.edit-btn,
+.delete-btn {
+  padding: 8px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.edit-btn {
+  background-color: #28a745;
+  color: white;
 }
 
 .edit-btn:hover {
-  background-color: #0d47a1;
+  background-color: #218838;
 }
 
 .delete-btn {
-  background-color: #e53935;
+  background-color: #dc3545;
   color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
 }
 
 .delete-btn:hover {
-  background-color: #b71c1c;
+  background-color: #c82333;
 }
 
+/* Medya Sorguları */
+@media (max-width: 768px) {
+  .student-form,
+  .student-table {
+    padding: 15px;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+}
 </style>
+
