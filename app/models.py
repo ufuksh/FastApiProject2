@@ -1,10 +1,10 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, String, ForeignKey, DateTime, Boolean, Date
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import CHAR
 from .database import Base
-
+from sqlalchemy.sql import func
 
 # -----------------------------
 # User Model
