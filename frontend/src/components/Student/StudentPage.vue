@@ -1,23 +1,24 @@
-<script setup>
+<!-- frontend/src/components/StudentPage.vue -->
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useStudentStore } from "@/store/StudentStore.ts";
+import { useStudentStore } from "../../store/StudentStore";
 
-// Pinia store çağrılır
+interface Student {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  date_of_birth?: string;
+  grade?: string;
+  contact_info?: string;
+}
+
 const studentStore = useStudentStore();
 
-// Düzenleme durumunu izleyen değişken
 const isEdit = ref(false);
 
-// Seçili öğrenci (güncelleme için)
-const selectedStudent = ref({
-  id: null,
-  first_name: "",
-  last_name: "",
-  email: "",
-});
-
-// Yeni öğrenci için form verileri
-const newStudent = ref({
+const selectedStudent = ref<Student>({
+  id: "",
   first_name: "",
   last_name: "",
   email: "",
@@ -26,71 +27,62 @@ const newStudent = ref({
   contact_info: "",
 });
 
-// Öğrencileri store'dan almak için fonksiyon
+const newStudent = ref<Partial<Student>>({
+  first_name: "",
+  last_name: "",
+  email: "",
+  date_of_birth: "",
+  grade: "",
+  contact_info: "",
+});
+
+// Hata mesajlarını göstermek için
+const showError = ref(false);
+
 async function getStudents() {
-  try {
-    await studentStore.getStudent(); // Öğrencileri al
-    console.log("Öğrenci verileri alındı:", studentStore.stateStudent);
-  } catch (error) {
-    console.error("Öğrenci verilerini alırken hata:", error);
-  }
+  await studentStore.getStudents();
 }
 
-// Yeni öğrenci ekleme fonksiyonu
 async function createNewStudent() {
-  try {
-    await studentStore.createStudent(newStudent.value);
-    // Form temizlenir
-    newStudent.value = {
-      first_name: "",
-      last_name: "",
-      email: "",
-      date_of_birth: "",
-      grade: "",
-      contact_info: "",
-    };
-  } catch (error) {
-    console.error("Öğrenci eklerken hata:", error);
-  }
+  await studentStore.createStudent(newStudent.value);
+  // Formu temizle
+  newStudent.value = {
+    first_name: "",
+    last_name: "",
+    email: "",
+    date_of_birth: "",
+    grade: "",
+    contact_info: "",
+  };
 }
 
-// Düzenleme moduna geçiş
-function editStudent(student) {
+function editStudent(student: Student) {
   isEdit.value = true;
-  selectedStudent.value = { ...student }; // Öğrenci verilerini kopyala
+  selectedStudent.value = { ...student };
 }
 
-// Öğrenci güncelleme fonksiyonu
 async function updateStudent() {
-  try {
-    await studentStore.updateStudent(selectedStudent.value);
-    isEdit.value = false;
-    selectedStudent.value = {
-      id: null,
-      first_name: "",
-      last_name: "",
-      email: "",
-    };
-  } catch (error) {
-    console.error("Öğrenci güncellerken hata:", error);
-  }
+  await studentStore.updateStudent(selectedStudent.value);
+  isEdit.value = false;
+  selectedStudent.value = {
+    id: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    date_of_birth: "",
+    grade: "",
+    contact_info: "",
+  };
 }
 
-// Öğrenci silme fonksiyonu
-async function deleteStudent(id) {
-  try {
-    await studentStore.deleteStudent(id);
-  } catch (error) {
-    console.error("Öğrenci silerken hata:", error);
-  }
+async function deleteStudent(id: string) {
+  await studentStore.deleteStudent(id);
 }
 
-// Bileşen yüklendiğinde öğrencileri al
 onMounted(() => {
   getStudents();
 });
 </script>
-
 
 <template>
   <div class="student-form">
@@ -98,74 +90,71 @@ onMounted(() => {
     <h2 v-if="!isEdit">Öğrenci Ekle</h2>
     <h2 v-else>Öğrenci Güncelle</h2>
 
+    <!-- Hata Mesajı -->
+    <div v-if="studentStore.errorMessage" class="error-message">
+      {{ studentStore.errorMessage }}
+    </div>
+
     <!-- Form (Ekle veya Güncelle aynı form) -->
     <form @submit.prevent="isEdit ? updateStudent() : createNewStudent()">
       <div class="form-group">
         <label for="first_name">Ad</label>
-        <template v-if="isEdit">
-          <!-- Düzenleme Formu -->
-          <input
-            v-model="selectedStudent.first_name"
-            type="text"
-            id="first_name"
-            placeholder="Öğrencinin adını girin"
-            required
-          />
-        </template>
-        <template v-else>
-          <!-- Yeni Kayıt Formu -->
-          <input
-            v-model="newStudent.first_name"
-            type="text"
-            id="first_name"
-            placeholder="Öğrencinin adını girin"
-            required
-          />
-        </template>
+        <input
+          v-if="isEdit"
+          v-model="selectedStudent.first_name"
+          type="text"
+          id="first_name"
+          placeholder="Öğrencinin adını girin"
+          required
+        />
+        <input
+          v-else
+          v-model="newStudent.first_name"
+          type="text"
+          id="first_name"
+          placeholder="Öğrencinin adını girin"
+          required
+        />
       </div>
 
       <div class="form-group">
         <label for="last_name">Soyad</label>
-        <template v-if="isEdit">
-          <input
-            v-model="selectedStudent.last_name"
-            type="text"
-            id="last_name"
-            placeholder="Öğrencinin soyadını girin"
-            required
-          />
-        </template>
-        <template v-else>
-          <input
-            v-model="newStudent.last_name"
-            type="text"
-            id="last_name"
-            placeholder="Öğrencinin soyadını girin"
-            required
-          />
-        </template>
+        <input
+          v-if="isEdit"
+          v-model="selectedStudent.last_name"
+          type="text"
+          id="last_name"
+          placeholder="Öğrencinin soyadını girin"
+          required
+        />
+        <input
+          v-else
+          v-model="newStudent.last_name"
+          type="text"
+          id="last_name"
+          placeholder="Öğrencinin soyadını girin"
+          required
+        />
       </div>
 
       <div class="form-group">
         <label for="email">Email</label>
-        <template v-if="isEdit">
-          <input
-            v-model="selectedStudent.email"
-            type="email"
-            id="email"
-            placeholder="Öğrencinin email adresini girin"
-            required
-          />
-        </template>
-        <template v-else>
-          <input
-            v-model="newStudent.email"
-            type="email"
-            id="email"
-            placeholder="Öğrencinin email adresini girin"
-            required
-          />
-        </template>
+        <input
+          v-if="isEdit"
+          v-model="selectedStudent.email"
+          type="email"
+          id="email"
+          placeholder="Öğrencinin email adresini girin"
+          required
+        />
+        <input
+          v-else
+          v-model="newStudent.email"
+          type="email"
+          id="email"
+          placeholder="Öğrencinin email adresini girin"
+          required
+        />
       </div>
 
       <!-- Sadece yeni eklerken gözüken alanlar -->
@@ -221,10 +210,7 @@ onMounted(() => {
       </thead>
       <tbody>
         <!-- Burada store’daki diziyle döngü yapıyoruz -->
-        <tr
-          v-for="student in studentStore.stateStudent"
-          :key="student.id"
-        >
+        <tr v-for="student in studentStore.stateStudent" :key="student.id">
           <td>{{ student.id }}</td>
           <td>{{ student.first_name }} {{ student.last_name }}</td>
           <td>{{ student.email }}</td>
@@ -249,6 +235,13 @@ body {
   background-color: #f8f9fa;
   margin: 0;
   padding: 0;
+}
+
+/* Hata Mesajı Stili */
+.error-message {
+  color: red;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 /* Öğrenci Formu */
@@ -415,4 +408,3 @@ tbody td {
   }
 }
 </style>
-

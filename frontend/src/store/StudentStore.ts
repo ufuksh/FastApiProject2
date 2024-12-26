@@ -1,24 +1,34 @@
+// frontend/src/store/StudentStore.ts
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { useBackendStore } from "@/store/backendStore";
+import { useBackendStore } from "../store/backendStore"; // Relatif yol ile import
+
+// Öğrenci Modeli (TypeScript Interface)
+interface Student {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  date_of_birth?: string;
+  grade?: string;
+  contact_info?: string;
+}
 
 export const useStudentStore = defineStore("studentStore", () => {
   const backendStore = useBackendStore();
-  const stateStudent = ref([]);
+  const stateStudent = ref<Student[]>([]);
   const isLoading = ref(false);
   const errorMessage = ref("");
 
   // Tüm öğrencileri getir
-  async function getStudent() {
+  async function getStudents() {
     isLoading.value = true;
     try {
-      const backend = await backendStore.backend();
-      const response = await backend.read_students_students__get(); // API yöntemi doğru şekilde çağrılıyor
-
-      console.log("GET /students yanıtı:", response.data);
-      stateStudent.value = response.data; // Gelen veriler state'e atanıyor
+      const response = await backendStore.getStudents(); // backendStore.backend().getStudents() yerine doğrudan çağırın
+      console.log("GET /api/students yanıtı:", response.data);
+      stateStudent.value = response.data;
     } catch (error) {
-      console.error("GET /students hata:", error);
+      console.error("GET /api/students hata:", error);
       errorMessage.value = "Öğrencileri getirirken bir hata oluştu.";
     } finally {
       isLoading.value = false;
@@ -26,19 +36,16 @@ export const useStudentStore = defineStore("studentStore", () => {
   }
 
   // Yeni öğrenci oluştur
-  async function createStudent(newStudent) {
+  async function createStudent(newStudent: Partial<Student>) {
     isLoading.value = true;
     try {
-      const backend = await backendStore.backend();
-      const response = await backend.create_student_students__post(null, newStudent);
-
-      console.log("POST /students yanıtı:", response.data);
-      stateStudent.value.push(response.data); // Yeni öğrenci listeye ekleniyor
-
-      // Sunucudan veriyi tekrar çek
-      await getStudent();
+      const response = await backendStore.createStudent(newStudent);
+      console.log("POST /api/students yanıtı:", response.data);
+      stateStudent.value.push(response.data);
+      // İsteğe bağlı olarak listeyi tekrar çekebilirsiniz
+      // await getStudents();
     } catch (error) {
-      console.error("POST /students hata:", error);
+      console.error("POST /api/students hata:", error);
       errorMessage.value = "Yeni öğrenci eklerken bir hata oluştu.";
     } finally {
       isLoading.value = false;
@@ -46,26 +53,17 @@ export const useStudentStore = defineStore("studentStore", () => {
   }
 
   // Öğrenci güncelle
-  async function updateStudent(updatedStudent) {
+  async function updateStudent(updatedStudent: Student) {
     isLoading.value = true;
     try {
-      const backend = await backendStore.backend();
-      const response = await backend.update_student_students__student_id__put(
-        { student_id: updatedStudent.id },
-        updatedStudent
-      );
-
-      console.log("PUT /students yanıtı:", response.data);
-
-      // Local state'de güncelle
-      const index = stateStudent.value.findIndex(
-        (student) => student.id === updatedStudent.id
-      );
+      const response = await backendStore.updateStudent(updatedStudent.id, updatedStudent);
+      console.log("PUT /api/students/{id} yanıtı:", response.data);
+      const index = stateStudent.value.findIndex(student => student.id === updatedStudent.id);
       if (index !== -1) {
         stateStudent.value[index] = response.data;
       }
     } catch (error) {
-      console.error("PUT /students hata:", error);
+      console.error("PUT /api/students hata:", error);
       errorMessage.value = "Öğrenciyi güncellerken bir hata oluştu.";
     } finally {
       isLoading.value = false;
@@ -73,22 +71,14 @@ export const useStudentStore = defineStore("studentStore", () => {
   }
 
   // Öğrenci sil
-  async function deleteStudent(studentId) {
+  async function deleteStudent(studentId: string) {
     isLoading.value = true;
     try {
-      const backend = await backendStore.backend();
-      await backend.delete_student_students__student_id__delete({
-        student_id: studentId,
-      });
-
-      console.log("DELETE /students yanıtı: Silme başarılı");
-
-      // Local state'den çıkar
-      stateStudent.value = stateStudent.value.filter(
-        (student) => student.id !== studentId
-      );
+      await backendStore.deleteStudent(studentId);
+      console.log("DELETE /api/students yanıtı: Silme başarılı");
+      stateStudent.value = stateStudent.value.filter(student => student.id !== studentId);
     } catch (error) {
-      console.error("DELETE /students hata:", error);
+      console.error("DELETE /api/students hata:", error);
       errorMessage.value = "Öğrenciyi silerken bir hata oluştu.";
     } finally {
       isLoading.value = false;
@@ -96,19 +86,16 @@ export const useStudentStore = defineStore("studentStore", () => {
   }
 
   // Tek bir öğrenci getir (id ile)
-  async function getStudentById(studentId) {
+  async function getStudentById(studentId: string): Promise<Student | undefined> {
     isLoading.value = true;
     try {
-      const backend = await backendStore.backend();
-      const response = await backend.read_student_students__student_id__get({
-        student_id: studentId,
-      });
-
-      console.log("GET /students/{id} yanıtı:", response.data);
+      const response = await backendStore.getStudentById(studentId);
+      console.log("GET /api/students/{id} yanıtı:", response.data);
       return response.data;
     } catch (error) {
-      console.error("GET /students/{id} hata:", error);
+      console.error("GET /api/students/{id} hata:", error);
       errorMessage.value = "Öğrenciyi getirirken bir hata oluştu.";
+      return undefined;
     } finally {
       isLoading.value = false;
     }
@@ -118,7 +105,7 @@ export const useStudentStore = defineStore("studentStore", () => {
     stateStudent,
     isLoading,
     errorMessage,
-    getStudent,
+    getStudents,
     createStudent,
     updateStudent,
     deleteStudent,
