@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "http://35.158.119.153:8000/api", // Backend URL'i doğru ayarlayın
+  baseURL: "http://35.158.119.153:8000/api", // Backend URL
   headers: {
     "Content-Type": "application/json",
   },
@@ -10,17 +10,16 @@ const apiClient = axios.create({
 export default {
   // Öğrenci işlemleri
   getStudents() {
-    // Swagger'daki endpoint'e göre "/students/students" olmalı
-    return apiClient.get("/students/students/");
+    return apiClient.get("/students/students"); // /students/students olarak güncellendi
   },
   createStudent(data) {
-    return apiClient.post("/students/students/", data);
+    return apiClient.post("/students/students", data); // /students/students olarak güncellendi
   },
   updateStudent(id, data) {
-    return apiClient.put(`/students/students/${id}`, data);
+    return apiClient.put(`/students/students/${id}`, data); // /students/students olarak güncellendi
   },
   deleteStudent(id) {
-    return apiClient.delete(`/students/students/${id}`);
+    return apiClient.delete(`/students/students/${id}`); // /students/students olarak güncellendi
   },
 
   // Kullanıcı işlemleri
