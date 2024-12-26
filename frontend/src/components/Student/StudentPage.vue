@@ -2,50 +2,73 @@
 import { ref, onMounted } from "vue";
 import { useStudentStore } from "@/store/StudentStore.ts";
 
+// Pinia store’u çağır
 const studentStore = useStudentStore();
 
+// Düzenleme durumunu takip eden flag
 const isEdit = ref(false);
-const selectedStudent = ref({ id: null, first_name: "", last_name: "", email: "" });
 
+// Düzenlenecek öğrenci (selectedStudent)
+const selectedStudent = ref({
+  id: null,
+  first_name: "",
+  last_name: "",
+  email: "",
+});
+
+// Yeni eklenecek öğrenci verisi
 const newStudent = ref({
   first_name: "",
   last_name: "",
   email: "",
   date_of_birth: "",
   grade: "",
-  contact_info: ""
+  contact_info: "",
 });
 
-// Tüm öğrencileri getir
-const getStudents = async () => {
-  await studentStore.getStudent();
-};
+// Tüm öğrencileri store’dan çekmek (tabloyu doldurmak) için:
+async function getStudents() {
+  await studentStore.getStudent(); // store içindeki getStudent fonksiyonu
+}
 
-// Yeni öğrenci oluştur
-const createNewStudent = async () => {
+// Yeni öğrenci oluşturma
+async function createNewStudent() {
   await studentStore.createStudent(newStudent.value);
   // Formu temizle
-  newStudent.value = { first_name: "", last_name: "", email: "", date_of_birth: "", grade: "", contact_info: "" };
-};
+  newStudent.value = {
+    first_name: "",
+    last_name: "",
+    email: "",
+    date_of_birth: "",
+    grade: "",
+    contact_info: "",
+  };
+}
 
-// Öğrenci düzenleme moduna geçiş
-const editStudent = (student) => {
+// Düzenleme moduna geçiş
+function editStudent(student) {
   isEdit.value = true;
-  selectedStudent.value = { ...student };
-};
+  selectedStudent.value = { ...student }; // Seçilen öğrenciyi kopyala
+}
 
-// Öğrenci güncelle
-const updateStudent = async () => {
+// Öğrenci güncelleme
+async function updateStudent() {
   await studentStore.updateStudent(selectedStudent.value);
   isEdit.value = false;
-  selectedStudent.value = { id: null, first_name: "", last_name: "", email: "" };
-};
+  selectedStudent.value = {
+    id: null,
+    first_name: "",
+    last_name: "",
+    email: "",
+  };
+}
 
-// Öğrenci sil
-const deleteStudent = async (id) => {
+// Öğrenci silme
+async function deleteStudent(id) {
   await studentStore.deleteStudent(id);
-};
+}
 
+// Bileşen yüklendiğinde öğrencileri çek
 onMounted(() => {
   getStudents();
 });
@@ -53,42 +76,81 @@ onMounted(() => {
 
 <template>
   <div class="student-form">
+    <!-- Başlık: Ekle/Güncelle -->
     <h2 v-if="!isEdit">Öğrenci Ekle</h2>
     <h2 v-else>Öğrenci Güncelle</h2>
+
+    <!-- Form (Ekle veya Güncelle aynı form) -->
     <form @submit.prevent="isEdit ? updateStudent() : createNewStudent()">
       <div class="form-group">
-  <label for="first_name">Ad</label>
-  <template v-if="isEdit">
-    <!-- Düzenleme Formu -->
-    <input v-model="selectedStudent.first_name" type="text" id="first_name" placeholder="Öğrencinin adını girin" required />
-  </template>
-  <template v-else>
-    <!-- Yeni Kayıt Formu -->
-    <input v-model="newStudent.first_name" type="text" id="first_name" placeholder="Öğrencinin adını girin" required />
-  </template>
-</div>
+        <label for="first_name">Ad</label>
+        <template v-if="isEdit">
+          <!-- Düzenleme Formu -->
+          <input
+            v-model="selectedStudent.first_name"
+            type="text"
+            id="first_name"
+            placeholder="Öğrencinin adını girin"
+            required
+          />
+        </template>
+        <template v-else>
+          <!-- Yeni Kayıt Formu -->
+          <input
+            v-model="newStudent.first_name"
+            type="text"
+            id="first_name"
+            placeholder="Öğrencinin adını girin"
+            required
+          />
+        </template>
+      </div>
 
-<div class="form-group">
-  <label for="last_name">Soyad</label>
-  <template v-if="isEdit">
-    <input v-model="selectedStudent.last_name" type="text" id="last_name" placeholder="Öğrencinin soyadını girin" required />
-  </template>
-  <template v-else>
-    <input v-model="newStudent.last_name" type="text" id="last_name" placeholder="Öğrencinin soyadını girin" required />
-  </template>
-</div>
+      <div class="form-group">
+        <label for="last_name">Soyad</label>
+        <template v-if="isEdit">
+          <input
+            v-model="selectedStudent.last_name"
+            type="text"
+            id="last_name"
+            placeholder="Öğrencinin soyadını girin"
+            required
+          />
+        </template>
+        <template v-else>
+          <input
+            v-model="newStudent.last_name"
+            type="text"
+            id="last_name"
+            placeholder="Öğrencinin soyadını girin"
+            required
+          />
+        </template>
+      </div>
 
-<div class="form-group">
-  <label for="email">Email</label>
-  <template v-if="isEdit">
-    <input v-model="selectedStudent.email" type="email" id="email" placeholder="Öğrencinin email adresini girin" required />
-  </template>
-  <template v-else>
-    <input v-model="newStudent.email" type="email" id="email" placeholder="Öğrencinin email adresini girin" required />
-  </template>
-</div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <template v-if="isEdit">
+          <input
+            v-model="selectedStudent.email"
+            type="email"
+            id="email"
+            placeholder="Öğrencinin email adresini girin"
+            required
+          />
+        </template>
+        <template v-else>
+          <input
+            v-model="newStudent.email"
+            type="email"
+            id="email"
+            placeholder="Öğrencinin email adresini girin"
+            required
+          />
+        </template>
+      </div>
 
-
+      <!-- Sadece yeni eklerken gözüken alanlar -->
       <div v-if="!isEdit" class="form-group">
         <label for="date_of_birth">Doğum Tarihi</label>
         <input
@@ -121,10 +183,13 @@ onMounted(() => {
         />
       </div>
 
-      <button type="submit" class="submit-btn">{{ isEdit ? "Güncelle" : "Ekle" }}</button>
+      <button type="submit" class="submit-btn">
+        {{ isEdit ? "Güncelle" : "Ekle" }}
+      </button>
     </form>
   </div>
 
+  <!-- Öğrenci Listesi Tablosu -->
   <div class="student-table">
     <h2>Öğrenci Listesi</h2>
     <table>
@@ -137,13 +202,21 @@ onMounted(() => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="student in studentStore.stateStudent" :key="student.id">
+        <!-- Burada store’daki diziyle döngü yapıyoruz -->
+        <tr
+          v-for="student in studentStore.stateStudent"
+          :key="student.id"
+        >
           <td>{{ student.id }}</td>
           <td>{{ student.first_name }} {{ student.last_name }}</td>
           <td>{{ student.email }}</td>
           <td>
-            <button class="edit-btn" @click="editStudent(student)">Düzenle</button>
-            <button class="delete-btn" @click="deleteStudent(student.id)">Sil</button>
+            <button class="edit-btn" @click="editStudent(student)">
+              Düzenle
+            </button>
+            <button class="delete-btn" @click="deleteStudent(student.id)">
+              Sil
+            </button>
           </td>
         </tr>
       </tbody>
