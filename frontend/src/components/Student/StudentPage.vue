@@ -39,8 +39,8 @@ const newStudent = ref<Partial<Student>>({
 const showError = ref(false);
 
 async function getStudents() {
-      await studentStore.getStudents();
-    }
+  await studentStore.getStudents();
+}
 
 async function createNewStudent() {
   await studentStore.createStudent(newStudent.value);
@@ -61,7 +61,11 @@ function editStudent(student: Student) {
 }
 
 async function updateStudent() {
-  await studentStore.updateStudent(selectedStudent.value as Student);
+  if (!selectedStudent.value.id) {
+    alert("Güncelleme işlemi için geçerli bir öğrenci seçin.");
+    return;
+  }
+  await studentStore.updateStudent(selectedStudent.value);
   isEdit.value = false;
   selectedStudent.value = {
     id: "",
@@ -84,6 +88,7 @@ onMounted(() => {
   getStudents();
 });
 </script>
+
 
 <template>
   <div class="student-form">
