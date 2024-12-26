@@ -61,7 +61,10 @@ def read_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     """
     print(f"GET: Tüm öğrenciler getiriliyor. Skip={skip}, Limit={limit}")
     students = crud.get_students(db, skip=skip, limit=limit)
-    print(f"GET: {len(students)} öğrenci bulundu.")
+    if not students:
+        print("GET: Hiç öğrenci kaydı bulunamadı.")
+    else:
+        print(f"GET: {len(students)} öğrenci bulundu.")
     return students
 
 
