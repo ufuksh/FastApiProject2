@@ -2,13 +2,13 @@
 import { ref, onMounted } from "vue";
 import { useStudentStore } from "@/store/StudentStore.ts";
 
-// Pinia store’u çağır
+// Pinia store çağrılır
 const studentStore = useStudentStore();
 
-// Düzenleme durumunu takip eden flag
+// Düzenleme durumunu izleyen değişken
 const isEdit = ref(false);
 
-// Düzenlenecek öğrenci (selectedStudent)
+// Seçili öğrenci (güncelleme için)
 const selectedStudent = ref({
   id: null,
   first_name: "",
@@ -16,7 +16,7 @@ const selectedStudent = ref({
   email: "",
 });
 
-// Yeni eklenecek öğrenci verisi
+// Yeni öğrenci için form verileri
 const newStudent = ref({
   first_name: "",
   last_name: "",
@@ -26,53 +26,71 @@ const newStudent = ref({
   contact_info: "",
 });
 
-// Tüm öğrencileri store’dan çekmek (tabloyu doldurmak) için:
+// Öğrencileri store'dan almak için fonksiyon
 async function getStudents() {
-  await studentStore.getStudent(); // store içindeki getStudent fonksiyonu
+  try {
+    await studentStore.getStudent(); // Öğrencileri al
+    console.log("Öğrenci verileri alındı:", studentStore.stateStudent);
+  } catch (error) {
+    console.error("Öğrenci verilerini alırken hata:", error);
+  }
 }
 
-// Yeni öğrenci oluşturma
+// Yeni öğrenci ekleme fonksiyonu
 async function createNewStudent() {
-  await studentStore.createStudent(newStudent.value);
-  // Formu temizle
-  newStudent.value = {
-    first_name: "",
-    last_name: "",
-    email: "",
-    date_of_birth: "",
-    grade: "",
-    contact_info: "",
-  };
+  try {
+    await studentStore.createStudent(newStudent.value);
+    // Form temizlenir
+    newStudent.value = {
+      first_name: "",
+      last_name: "",
+      email: "",
+      date_of_birth: "",
+      grade: "",
+      contact_info: "",
+    };
+  } catch (error) {
+    console.error("Öğrenci eklerken hata:", error);
+  }
 }
 
 // Düzenleme moduna geçiş
 function editStudent(student) {
   isEdit.value = true;
-  selectedStudent.value = { ...student }; // Seçilen öğrenciyi kopyala
+  selectedStudent.value = { ...student }; // Öğrenci verilerini kopyala
 }
 
-// Öğrenci güncelleme
+// Öğrenci güncelleme fonksiyonu
 async function updateStudent() {
-  await studentStore.updateStudent(selectedStudent.value);
-  isEdit.value = false;
-  selectedStudent.value = {
-    id: null,
-    first_name: "",
-    last_name: "",
-    email: "",
-  };
+  try {
+    await studentStore.updateStudent(selectedStudent.value);
+    isEdit.value = false;
+    selectedStudent.value = {
+      id: null,
+      first_name: "",
+      last_name: "",
+      email: "",
+    };
+  } catch (error) {
+    console.error("Öğrenci güncellerken hata:", error);
+  }
 }
 
-// Öğrenci silme
+// Öğrenci silme fonksiyonu
 async function deleteStudent(id) {
-  await studentStore.deleteStudent(id);
+  try {
+    await studentStore.deleteStudent(id);
+  } catch (error) {
+    console.error("Öğrenci silerken hata:", error);
+  }
 }
 
-// Bileşen yüklendiğinde öğrencileri çek
+// Bileşen yüklendiğinde öğrencileri al
 onMounted(() => {
   getStudents();
 });
 </script>
+
 
 <template>
   <div class="student-form">
