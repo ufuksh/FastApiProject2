@@ -85,24 +85,15 @@ def delete_user(db: Session, user_id: UUID):
 # Student CRUD
 # -----------------------------
 
-def get_student(db: Session, student_id: UUID):
-    """
-    Belirli bir öğrenci kaydını ID'ye göre getirir.
-    """
+def get_student(db: Session, student_id: str):
     print(f"get_student: Öğrenci ID={student_id}")
     return db.query(models.Student).filter(models.Student.id == student_id).first()
 
 def get_students(db: Session, skip: int = 0, limit: int = 100):
-    """
-    Tüm öğrenci kayıtlarını getirir (sayfalama destekli).
-    """
     print(f"get_students: Skip={skip}, Limit={limit}")
     return db.query(models.Student).offset(skip).limit(limit).all()
 
 def create_student(db: Session, student: schemas.StudentCreate):
-    """
-    Yeni bir öğrenci kaydı oluşturur.
-    """
     print(f"create_student: Yeni öğrenci oluşturuluyor: {student.first_name} {student.last_name}")
     db_student = models.Student(
         first_name=student.first_name,
@@ -118,10 +109,7 @@ def create_student(db: Session, student: schemas.StudentCreate):
     print(f"create_student: Öğrenci oluşturuldu: {db_student}")
     return db_student
 
-def update_student(db: Session, student_id: UUID, student_update: schemas.StudentUpdate):
-    """
-    Mevcut bir öğrenci kaydını günceller.
-    """
+def update_student(db: Session, student_id: str, student_update: schemas.StudentUpdate):
     print(f"update_student: Öğrenci ID={student_id} güncelleniyor.")
     db_student = get_student(db, student_id)
     if db_student:
@@ -135,10 +123,7 @@ def update_student(db: Session, student_id: UUID, student_update: schemas.Studen
         print(f"update_student: Öğrenci ID={student_id} bulunamadı.")
     return db_student
 
-def delete_student(db: Session, student_id: UUID):
-    """
-    Mevcut bir öğrenci kaydını siler.
-    """
+def delete_student(db: Session, student_id: str):
     print(f"delete_student: Öğrenci ID={student_id} siliniyor.")
     db_student = get_student(db, student_id)
     if db_student:
@@ -148,6 +133,7 @@ def delete_student(db: Session, student_id: UUID):
     else:
         print(f"delete_student: Öğrenci ID={student_id} bulunamadı.")
     return db_student
+
 
 # -----------------------------
 # Teacher CRUD

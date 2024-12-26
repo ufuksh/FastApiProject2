@@ -32,15 +32,13 @@ class User(Base):
 class Student(Base):
     __tablename__ = "students"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    first_name = Column(String(255), index=True, nullable=False)  # First Name
-    last_name = Column(String(255), index=True, nullable=False)   # Last Name
-    email = Column(String(255), unique=True, index=True, nullable=False)  # Email
-    date_of_birth = Column(DateTime, nullable=True)  # Optional: Date of Birth
-    grade = Column(String(50), nullable=True)        # Optional: Grade or Class
-    contact_info = Column(String(255), nullable=True) # Optional: Contact Information
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
+    email = Column(String(100), unique=True, nullable=False)
+    date_of_birth = Column(Date, nullable=True)
+    grade = Column(String(10), nullable=True)
+    contact_info = Column(String(20), nullable=True)
 
     # Relationship to schedules
     schedules = relationship("ClassSchedule", back_populates="student", cascade="all, delete-orphan")
