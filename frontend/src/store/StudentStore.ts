@@ -77,9 +77,13 @@ export const useStudentStore = defineStore("studentStore", () => {
       await backendStore.deleteStudent(studentId);
       console.log("DELETE /api/students yanıtı: Silme başarılı");
       stateStudent.value = stateStudent.value.filter(student => student.id !== studentId);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        errorMessage.value = "Silinmek istenen öğrenci bulunamadı.";
+      } else {
+        errorMessage.value = "Öğrenciyi silerken bir hata oluştu.";
+      }
       console.error("DELETE /api/students hata:", error);
-      errorMessage.value = "Öğrenciyi silerken bir hata oluştu.";
     } finally {
       isLoading.value = false;
     }
