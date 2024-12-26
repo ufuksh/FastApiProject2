@@ -10,16 +10,19 @@ const apiClient = axios.create({
 export default {
   // Öğrenci işlemleri
   getStudents() {
-    return apiClient.get("/students/");
+    return apiClient.get("/students/"); // Trailing slash
   },
   createStudent(data) {
-    return apiClient.post("/students/", data);
+    return apiClient.post("/students/", data); // Trailing slash
+  },
+  getStudentByUuid(uuid) {
+    return apiClient.get(`/students/${uuid}/`); // Trailing slash
   },
   updateStudent(uuid, data) {
-    return apiClient.put(`/students/${uuid}/`, data);
+    return apiClient.put(`/students/${uuid}/`, data); // Trailing slash
   },
   deleteStudent(uuid) {
-    return apiClient.delete(`/students/${uuid}/`);
+    return apiClient.delete(`/students/${uuid}/`); // Trailing slash
   },
 
   // Kullanıcı işlemleri

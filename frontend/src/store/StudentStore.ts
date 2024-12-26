@@ -89,12 +89,10 @@ async function deleteStudent(studentUuid: string) {
     isLoading.value = false;
   }
 }
-
-// Tek bir öğrenci getir (uuid ile)
 async function getStudentByUuid(studentUuid: string): Promise<Student | undefined> {
   isLoading.value = true;
   try {
-    const response = await backendStore.getStudentById(studentUuid);
+    const response = await backendStore.getStudentById(studentUuid); // Correct method
     return response.data;
   } catch (error: any) {
     if (error.response?.status === 404) {
