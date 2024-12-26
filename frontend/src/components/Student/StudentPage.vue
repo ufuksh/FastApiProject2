@@ -5,6 +5,7 @@ import { useStudentStore } from "../../store/StudentStore";
 
 interface Student {
   id: string;
+  uuid?: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -16,9 +17,9 @@ interface Student {
 const studentStore = useStudentStore();
 
 const isEdit = ref(false);
-
 const selectedStudent = ref<Student>({
   id: "",
+  uuid: "",
   first_name: "",
   last_name: "",
   email: "",
@@ -66,6 +67,7 @@ async function updateStudent() {
   isEdit.value = false;
   selectedStudent.value = {
     id: "",
+    uuid: "",
     first_name: "",
     last_name: "",
     email: "",
