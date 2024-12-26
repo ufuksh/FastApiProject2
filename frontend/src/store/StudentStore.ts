@@ -13,11 +13,10 @@ export const useStudentStore = defineStore("studentStore", () => {
     isLoading.value = true;
     try {
       const backend = await backendStore.backend();
-      const response = await backend.get(null);
-
+      const response = await backend.read_students_students__get(); // API yöntemi doğru şekilde çağrılıyor
 
       console.log("GET /students yanıtı:", response.data);
-      stateStudent.value = response.data;
+      stateStudent.value = response.data; // Gelen veriler state'e atanıyor
     } catch (error) {
       console.error("GET /students hata:", error);
       errorMessage.value = "Öğrencileri getirirken bir hata oluştu.";
@@ -34,7 +33,7 @@ export const useStudentStore = defineStore("studentStore", () => {
       const response = await backend.create_student_students__post(null, newStudent);
 
       console.log("POST /students yanıtı:", response.data);
-      stateStudent.value.push(response.data);
+      stateStudent.value.push(response.data); // Yeni öğrenci listeye ekleniyor
 
       // Sunucudan veriyi tekrar çek
       await getStudent();
@@ -78,11 +77,11 @@ export const useStudentStore = defineStore("studentStore", () => {
     isLoading.value = true;
     try {
       const backend = await backendStore.backend();
-      const response = await backend.delete_student_students__student_id__delete({
+      await backend.delete_student_students__student_id__delete({
         student_id: studentId,
       });
 
-      console.log("DELETE /students yanıtı:", response);
+      console.log("DELETE /students yanıtı: Silme başarılı");
 
       // Local state'den çıkar
       stateStudent.value = stateStudent.value.filter(
