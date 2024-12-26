@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || "http://localhost:8000", // Backend URL
+  baseURL: "http://35.158.119.153:8000/api", // Backend URL'i buraya sabit olarak ayarlıyoruz
   headers: {
     "Content-Type": "application/json",
   },
