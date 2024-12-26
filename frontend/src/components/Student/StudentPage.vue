@@ -211,7 +211,7 @@ onMounted(() => {
       </thead>
       <tbody>
         <!-- Burada store’daki diziyle döngü yapıyoruz -->
-        <tr v-for="student in studentStore.students" :key="student.id">
+        <tr v-for="student in studentStore.stateStudent" :key="student.id">
           <td>{{ student.id }}</td>
           <td>{{ student.first_name }} {{ student.last_name }}</td>
           <td>{{ student.email }}</td>
