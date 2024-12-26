@@ -13,7 +13,8 @@ export const useStudentStore = defineStore("studentStore", () => {
     isLoading.value = true;
     try {
       const backend = await backendStore.backend();
-      const response = await backend.read_students_students__get();
+      const response = await backend.get(null);
+
 
       console.log("GET /students yanıtı:", response.data);
       stateStudent.value = response.data;
