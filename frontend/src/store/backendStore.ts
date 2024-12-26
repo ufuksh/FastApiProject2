@@ -33,10 +33,33 @@ export const useBackendStore = defineStore("backendStore", () => {
   // Öğrenci CRUD Metodları
   const getStudents = (): Promise<AxiosResponse<Student[]>> => backend.get("/students/");
   const createStudent = (studentData: Partial<Student>): Promise<AxiosResponse<Student>> => backend.post("/students/", studentData);
-  const getStudentById = (studentId: string): Promise<AxiosResponse<Student>> => backend.get(`/students/${studentId}`);
-  const updateStudent = (studentId: string, studentData: Partial<Student>): Promise<AxiosResponse<Student>> => backend.put(`/students/${studentId}/`, studentData);
-  const deleteStudent = (studentId: string): Promise<AxiosResponse<any>> => backend.delete(`/students/${studentId}/`);
+  // Fixed methods with proper formatting and error handling
+const getStudentById = async (studentId: string): Promise<AxiosResponse<Student>> => {
+  try {
+    return await backend.get(`/students/${studentId}/`);
+  } catch (error) {
+    console.error('Error fetching student:', error);
+    throw error;
+  }
+};
 
+const updateStudent = async (studentId: string, studentData: Partial<Student>): Promise<AxiosResponse<Student>> => {
+  try {
+    return await backend.patch(`/students/${studentId}/`, studentData);
+  } catch (error) {
+    console.error('Error updating student:', error);
+    throw error;
+  }
+};
+
+const deleteStudent = async (studentId: string): Promise<AxiosResponse<void>> => {
+  try {
+    return await backend.delete(`/students/${studentId}/`);
+  } catch (error) {
+    console.error('Error deleting student:', error);
+    throw error;
+  }
+};
   // Program CRUD Metodları
   const getSchedules = (): Promise<AxiosResponse<Schedule[]>> => backend.get("/schedules/");
   const createSchedule = (scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => backend.post("/schedules/", scheduleData);
