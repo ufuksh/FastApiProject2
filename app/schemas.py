@@ -40,7 +40,7 @@ class StudentBase(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    date_of_birth: Optional[str] = None  # ISO formatında tarih
+    date_of_birth: Optional[datetime] = None
     grade: Optional[str] = None
     contact_info: Optional[str] = None
 
@@ -51,12 +51,15 @@ class StudentUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[EmailStr] = None
-    date_of_birth: Optional[str] = None
+    date_of_birth: Optional[datetime] = None
     grade: Optional[str] = None
     contact_info: Optional[str] = None
 
 class StudentResponse(StudentBase):
-    id: str  # UUID yerine str kullanıldı
+    id: UUID
+    created_at: datetime
+    updated_at: datetime
+    schedules: List[ScheduleResponse] = []
 
     class Config:
         orm_mode = True
