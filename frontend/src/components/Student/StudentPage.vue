@@ -39,8 +39,8 @@ const newStudent = ref<Partial<Student>>({
 const showError = ref(false);
 
 async function getStudents() {
-  await studentStore.fetchStudents();
-}
+      await studentStore.getStudents();
+    }
 
 async function createNewStudent() {
   await studentStore.createStudent(newStudent.value);
