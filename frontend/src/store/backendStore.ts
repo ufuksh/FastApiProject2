@@ -61,11 +61,51 @@ const deleteStudent = async (studentId: string): Promise<AxiosResponse<void>> =>
   }
 };
   // Program CRUD Metodları
-  const getSchedules = (): Promise<AxiosResponse<Schedule[]>> => backend.get("/schedules/");
-  const createSchedule = (scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => backend.post("/schedules/", scheduleData);
-  const getScheduleById = (scheduleId: string): Promise<AxiosResponse<Schedule>> => backend.get(`/schedules/${scheduleId}`);
-  const updateSchedule = (scheduleId: string, scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => backend.put(`/schedules/${scheduleId}/`, scheduleData);
-  const deleteSchedule = (scheduleId: string): Promise<AxiosResponse<any>> => backend.delete(`/schedules/${scheduleId}/`);
+const getSchedules = async (): Promise<AxiosResponse<Schedule[]>> => {
+  try {
+    return await backend.get("/schedules/");
+  } catch (error) {
+    console.error('Error fetching schedules:', error);
+    throw error;
+  }
+};
+
+const createSchedule = async (scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => {
+  try {
+    return await backend.post("/schedules/", scheduleData);
+  } catch (error) {
+    console.error('Error creating schedule:', error);
+    throw error;
+  }
+};
+
+const getScheduleById = async (scheduleId: string): Promise<AxiosResponse<Schedule>> => {
+  try {
+    return await backend.get(`/schedules/${scheduleId}/`);
+  } catch (error) {
+    console.error('Error fetching schedule:', error);
+    throw error;
+  }
+};
+
+const updateSchedule = async (scheduleId: string, scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => {
+  try {
+    return await backend.patch(`/schedules/${scheduleId}/`, scheduleData);
+  } catch (error) {
+    console.error('Error updating schedule:', error);
+    throw error;
+  }
+};
+
+const deleteSchedule = async (scheduleId: string): Promise<AxiosResponse<void>> => {
+  try {
+    return await backend.delete(`/schedules/${scheduleId}/`);
+  } catch (error) {
+    console.error('Error deleting schedule:', error);
+    throw error;
+  }
+};
+
 
   return {
     // Öğrenci Metodları
