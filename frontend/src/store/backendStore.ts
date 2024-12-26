@@ -33,7 +33,7 @@ export const useBackendStore = defineStore("backendStore", () => {
   // Öğrenci CRUD Metodları
   const getStudents = (): Promise<AxiosResponse<Student[]>> => backend.get("/students/");
   const createStudent = (studentData: Partial<Student>): Promise<AxiosResponse<Student>> => backend.post("/students/", studentData);
-  // Fixed methods with proper formatting and error handling
+// Fixed methods with proper formatting and error handling
 const getStudentById = async (studentId: string): Promise<AxiosResponse<Student>> => {
   try {
     return await backend.get(`/students/${studentId}/`);
@@ -43,27 +43,27 @@ const getStudentById = async (studentId: string): Promise<AxiosResponse<Student>
   }
 };
 
-const updateStudent = async (studentId: string, studentData: Partial<Student>): Promise<AxiosResponse<Student>> => {
+const updateStudent = async (studentUuid: string, studentData: Partial<Student>): Promise<AxiosResponse<Student>> => {
   try {
-    return await backend.patch(`/students/${studentId}/`, studentData);
+    return await backend.patch(`/students/${studentUuid}/`, studentData);
   } catch (error) {
     console.error('Error updating student:', error);
     throw error;
   }
 };
 
-const deleteStudent = async (studentId: string): Promise<AxiosResponse<void>> => {
+const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> => {
   try {
-    // First check if student exists
-    await backend.get(`/students/${studentId}/`);
-    
-    const response = await backend.delete(`/students/${studentId}/`, {
+    // First check
+    await backend.get(`/students/${studentUuid}/`);
+
+    const response = await backend.delete(`/students/${studentUuid}/`, {
       headers: {
         'Accept': 'application/json',
-        'X-HTTP-Method-Override': 'DELETE'  // Some servers require this
+        'X-HTTP-Method-Override': 'DELETE'
       }
     });
-    
+
     return response;
   } catch (error: any) {
     if (error.response?.status === 405) {
