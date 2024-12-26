@@ -1,3 +1,4 @@
+# frontend/src/crud.py
 from sqlalchemy.orm import Session
 from . import models, schemas
 from uuid import UUID
@@ -22,7 +23,7 @@ def get_user_by_id(db: Session, user_id: UUID):
     Kullanıcıyı ID'ye göre getirir.
     """
     print(f"get_user_by_id: Kullanıcı ID: {user_id}")
-    return db.query(models.User).filter(models.User.id == str(user_id)).first()
+    return db.query(models.User).filter(models.User.id == user_id).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     """
@@ -54,8 +55,9 @@ def update_user(db: Session, user_id: UUID, user_update: schemas.UserUpdate):
     print(f"update_user: Kullanıcı ID={user_id} güncelleniyor.")
     db_user = get_user_by_id(db, user_id)
     if db_user:
-        if user_update.password:
-            db_user.hashed_password = pwd_context.hash(user_update.password)
+        update_data = user_update.dict(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_user, key, value)
         db.commit()
         db.refresh(db_user)
     return db_user
@@ -102,18 +104,9 @@ def update_student(db: Session, student_id: UUID, student: schemas.StudentUpdate
     print(f"update_student: Öğrenci ID={student_id} güncelleniyor.")
     db_student = get_student(db, student_id)
     if db_student:
-        if student.first_name:
-            db_student.first_name = student.first_name
-        if student.last_name:
-            db_student.last_name = student.last_name
-        if student.email:
-            db_student.email = student.email
-        if student.date_of_birth:
-            db_student.date_of_birth = student.date_of_birth
-        if student.grade:
-            db_student.grade = student.grade
-        if student.contact_info:
-            db_student.contact_info = student.contact_info
+        update_data = student.dict(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_student, key, value)
         db.commit()
         db.refresh(db_student)
     return db_student
@@ -156,16 +149,9 @@ def update_teacher(db: Session, teacher_id: UUID, teacher: schemas.TeacherUpdate
     print(f"update_teacher: Öğretmen ID={teacher_id} güncelleniyor.")
     db_teacher = get_teacher(db, teacher_id)
     if db_teacher:
-        if teacher.first_name:
-            db_teacher.first_name = teacher.first_name
-        if teacher.last_name:
-            db_teacher.last_name = teacher.last_name
-        if teacher.email:
-            db_teacher.email = teacher.email
-        if teacher.subject_specialization:
-            db_teacher.subject_specialization = teacher.subject_specialization
-        if teacher.contact_info:
-            db_teacher.contact_info = teacher.contact_info
+        update_data = teacher.dict(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_teacher, key, value)
         db.commit()
         db.refresh(db_teacher)
     return db_teacher
@@ -209,18 +195,9 @@ def update_schedule(db: Session, schedule_id: UUID, schedule: schemas.ScheduleUp
     print(f"update_schedule: Program ID={schedule_id} güncelleniyor.")
     db_schedule = get_schedule(db, schedule_id)
     if db_schedule:
-        if schedule.title:
-            db_schedule.title = schedule.title
-        if schedule.description:
-            db_schedule.description = schedule.description
-        if schedule.start_time:
-            db_schedule.start_time = schedule.start_time
-        if schedule.end_time:
-            db_schedule.end_time = schedule.end_time
-        if schedule.student_id:
-            db_schedule.student_id = schedule.student_id
-        if schedule.teacher_id:
-            db_schedule.teacher_id = schedule.teacher_id
+        update_data = schedule.dict(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_schedule, key, value)
         db.commit()
         db.refresh(db_schedule)
     return db_schedule

@@ -8,7 +8,7 @@ from ..database import SessionLocal
 
 # Öğrenci API Router
 router = APIRouter(
-    prefix="",  # API için uygun prefix
+    prefix="",  # API için uygun prefix, ana uygulamada "/api/students" olarak dahil edilecek
     tags=["students"],
 )
 
@@ -84,7 +84,7 @@ def update_student(student_id: UUID, student: schemas.StudentUpdate, db: Session
     return updated_student
 
 
-@router.delete("/{student_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{student_id}", response_model=dict, status_code=status.HTTP_200_OK)
 def delete_student(student_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir öğrenci kaydını siler.
