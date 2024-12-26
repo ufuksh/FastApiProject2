@@ -198,14 +198,13 @@ onMounted(() => {
     </form>
   </div>
 
-  <template>
   <!-- Öğrenci Listesi Tablosu -->
   <div class="student-table">
     <h2>Öğrenci Listesi</h2>
     <table>
       <thead>
         <tr>
-          <th>UUID</th>
+          <th>ID</th>
           <th>Ad Soyad</th>
           <th>Email</th>
           <th>İşlemler</th>
@@ -213,15 +212,15 @@ onMounted(() => {
       </thead>
       <tbody>
         <!-- Burada store’daki diziyle döngü yapıyoruz -->
-        <tr v-for="student in studentStore.stateStudent" :key="student.uuid">
-          <td>{{ student.uuid }}</td>
+        <tr v-for="student in studentStore.stateStudent" :key="student.id">
+          <td>{{ student.id }}</td>
           <td>{{ student.first_name }} {{ student.last_name }}</td>
           <td>{{ student.email }}</td>
           <td>
             <button class="edit-btn" @click="editStudent(student)">
               Düzenle
             </button>
-            <button class="delete-btn" @click="deleteStudent(student.uuid)">
+            <button class="delete-btn" @click="deleteStudent(student.id)">
               Sil
             </button>
           </td>
@@ -230,38 +229,6 @@ onMounted(() => {
     </table>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent } from "vue";
-
-export default defineComponent({
-  name: "StudentPage",
-  setup() {
-    const studentStore = useStudentStore();
-
-    // Fetch students when component is mounted
-    studentStore.getStudents();
-
-    // Function to handle deletion
-    const deleteStudent = async (uuid: string) => {
-      if (confirm("Bu öğrenciyi silmek istediğinize emin misiniz?")) {
-        await studentStore.deleteStudent(uuid);
-      }
-    };
-
-    // Function to handle editing (implementation depends on your setup)
-    const editStudent = (student: Student) => {
-      // Your edit logic here
-    };
-
-    return {
-      studentStore,
-      deleteStudent,
-      editStudent,
-    };
-  },
-});
-</script>
 
 <style scoped>
 /* Genel Stil Ayarları */
