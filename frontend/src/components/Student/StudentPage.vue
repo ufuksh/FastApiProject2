@@ -4,8 +4,7 @@ import { ref, onMounted } from "vue";
 import { useStudentStore } from "../../store/StudentStore";
 
 interface Student {
-  id: string;
-  uuid?: string;
+  id: string; // UUID olarak kullanılıyor
   first_name: string;
   last_name: string;
   email: string;
@@ -19,7 +18,6 @@ const studentStore = useStudentStore();
 const isEdit = ref(false);
 const selectedStudent = ref<Student>({
   id: "",
-  uuid: "",
   first_name: "",
   last_name: "",
   email: "",
@@ -63,11 +61,10 @@ function editStudent(student: Student) {
 }
 
 async function updateStudent() {
-  await studentStore.updateStudent(selectedStudent.value);
+  await studentStore.updateStudent(selectedStudent.value as Student);
   isEdit.value = false;
   selectedStudent.value = {
     id: "",
-    uuid: "",
     first_name: "",
     last_name: "",
     email: "",
@@ -78,7 +75,9 @@ async function updateStudent() {
 }
 
 async function deleteStudent(id: string) {
-  await studentStore.deleteStudent(id);
+  if (confirm("Öğrenciyi silmek istediğinize emin misiniz?")) {
+    await studentStore.deleteStudent(id);
+  }
 }
 
 onMounted(() => {

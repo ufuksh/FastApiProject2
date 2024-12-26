@@ -33,47 +33,39 @@ export const useBackendStore = defineStore("backendStore", () => {
   // Öğrenci CRUD Metodları
   const getStudents = (): Promise<AxiosResponse<Student[]>> => backend.get("/students/");
   const createStudent = (studentData: Partial<Student>): Promise<AxiosResponse<Student>> => backend.post("/students/", studentData);
-// Fixed methods with proper formatting and error handling
-const getStudentById = async (studentId: string): Promise<AxiosResponse<Student>> => {
-  try {
-    return await backend.get(`/students/${studentId}/`);
-  } catch (error) {
-    console.error('Error fetching student:', error);
-    throw error;
-  }
-};
 
-const updateStudent = async (studentUuid: string, studentData: Partial<Student>): Promise<AxiosResponse<Student>> => {
-  try {
-    return await backend.patch(`/students/${studentUuid}/`, studentData);
-  } catch (error) {
-    console.error('Error updating student:', error);
-    throw error;
-  }
-};
-
-const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> => {
-  try {
-    // First check
-    await backend.get(`/students/${studentUuid}/`);
-
-    const response = await backend.delete(`/students/${studentUuid}/`, {
-      headers: {
-        'Accept': 'application/json',
-        'X-HTTP-Method-Override': 'DELETE'
-      }
-    });
-
-    return response;
-  } catch (error: any) {
-    if (error.response?.status === 405) {
-      console.error('DELETE method not allowed. Please check backend configuration.');
-      throw new Error('Delete operation not supported by the server');
+  const getStudentById = async (studentId: string): Promise<AxiosResponse<Student>> => {
+    try {
+      return await backend.get(`/students/${studentId}/`);
+    } catch (error) {
+      console.error('Error fetching student:', error);
+      throw error;
     }
-    console.error('Error deleting student:', error);
-    throw error;
-  }
-};
+  };
+
+  const updateStudent = async (studentUuid: string, studentData: Partial<Student>): Promise<AxiosResponse<Student>> => {
+    try {
+      return await backend.put(`/students/${studentUuid}/`, studentData);
+    } catch (error) {
+      console.error('Error updating student:', error);
+      throw error;
+    }
+  };
+
+  const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> => {
+    try {
+      const response = await backend.delete(`/students/${studentUuid}/`);
+      return response;
+    } catch (error: any) {
+      if (error.response?.status === 405) {
+        console.error('DELETE method not allowed. Please check backend configuration.');
+        throw new Error('Delete operation not supported by the server');
+      }
+      console.error('Error deleting student:', error);
+      throw error;
+    }
+  };
+
   // Program CRUD Metodları
   const getSchedules = async (): Promise<AxiosResponse<Schedule[]>> => {
     try {
@@ -104,7 +96,7 @@ const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> 
 
   const updateSchedule = async (scheduleId: string, scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => {
     try {
-      return await backend.patch(`/schedules/${scheduleId}/`, scheduleData);
+      return await backend.put(`/schedules/${scheduleId}/`, scheduleData);
     } catch (error) {
       console.error('Error updating schedule:', error);
       throw error;
