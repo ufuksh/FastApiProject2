@@ -8,7 +8,7 @@ from ..database import SessionLocal
 
 # Öğrenci API Router
 router = APIRouter(
-    prefix="/students/students",  # API için uygun prefix
+    prefix="/",  # API için uygun prefix
     tags=["students"],
 )
 
