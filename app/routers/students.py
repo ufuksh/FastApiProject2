@@ -1,3 +1,5 @@
+# backend/app/routers/students.py
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from uuid import UUID
@@ -8,7 +10,7 @@ from ..database import SessionLocal
 
 # Öğrenci API Router
 router = APIRouter(
-    prefix="",  # API için uygun prefix, ana uygulamada "/api/students" olarak dahil edilecek
+    prefix="",  # Ana uygulamada "/api/students" olarak dahil edilecek
     tags=["students"],
 )
 
@@ -40,7 +42,7 @@ def create_student(student: schemas.StudentCreate, db: Session = Depends(get_db)
     return new_student
 
 
-@router.get("/{student_id}", response_model=schemas.StudentResponse)
+@router.get("/{student_id}/", response_model=schemas.StudentResponse, status_code=status.HTTP_200_OK)
 def read_student(student_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir öğrenci kaydını ID'ye göre getirir.
@@ -54,7 +56,7 @@ def read_student(student_id: UUID, db: Session = Depends(get_db)):
     return db_student
 
 
-@router.get("/", response_model=List[schemas.StudentResponse])
+@router.get("/", response_model=List[schemas.StudentResponse], status_code=status.HTTP_200_OK)
 def read_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
     Tüm öğrenci kayıtlarını getirir.
@@ -68,23 +70,23 @@ def read_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     return students
 
 
-@router.put("/{student_id}", response_model=schemas.StudentResponse)
+@router.patch("/{student_id}/", response_model=schemas.StudentResponse, status_code=status.HTTP_200_OK)
 def update_student(student_id: UUID, student: schemas.StudentUpdate, db: Session = Depends(get_db)):
     """
     Belirli bir öğrenci kaydını günceller.
     """
-    print(f"PUT: {student_id} ID'li öğrenci güncelleniyor.")
+    print(f"PATCH: {student_id} ID'li öğrenci güncelleniyor.")
     db_student = crud.get_student(db, student_id=student_id)
     if not db_student:
-        print(f"PUT: {student_id} ID'li öğrenci bulunamadı.")
+        print(f"PATCH: {student_id} ID'li öğrenci bulunamadı.")
         raise HTTPException(status_code=404, detail="Student not found")
     
     updated_student = crud.update_student(db=db, student_id=student_id, student=student)
-    print(f"PUT: {student_id} ID'li öğrenci güncellendi:", updated_student)
+    print(f"PATCH: {student_id} ID'li öğrenci güncellendi:", updated_student)
     return updated_student
 
 
-@router.delete("/{student_id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.delete("/{student_id}/", response_model=dict, status_code=status.HTTP_200_OK)
 def delete_student(student_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir öğrenci kaydını siler.
