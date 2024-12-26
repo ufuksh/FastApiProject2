@@ -1,63 +1,63 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { useScheduleStore } from "@/store/ScheduleStore.ts";
+import { useUserStore } from "@/store/UserStore.ts";
 
-const scheduleStore = useScheduleStore();
+const userStore = useUserStore();
 
 const isEdit = ref(false);
-const selectedSchedule = ref({ id: null, title: "", time: "" });
+const selectedUser = ref({ id: null, username: "", email: "" });
 
-const getSchedules = async () => {
-  await scheduleStore.getSchedule();
+const getUsers = async () => {
+  await userStore.getUser();
 };
 
-const editSchedule = (schedule) => {
+const editUser = (user) => {
   isEdit.value = true;
-  selectedSchedule.value = { ...schedule };
+  selectedUser.value = { ...user };
 };
 
-const deleteSchedule = async (id) => {
-  await scheduleStore.deleteSchedule(id);
+const deleteUser = async (id) => {
+  await userStore.deleteUser(id);
 };
 
-const updateSchedule = async () => {
-  await scheduleStore.updateSchedule(selectedSchedule.value);
+const updateUser = async () => {
+  await userStore.updateUser(selectedUser.value);
   isEdit.value = false;
 };
 
-const newSchedule = ref({ title: "", time: "" });
+const newUser = ref({ username: "", email: "" });
 
-const createNewSchedule = async () => {
-  await scheduleStore.createSchedule(newSchedule.value);
-  newSchedule.value = { title: "", time: "" }; // Formu temizle
+const createNewUser = async () => {
+  await userStore.createUser(newUser.value);
+  newUser.value = { username: "", email: "" }; // Formu temizle
 };
 
 onMounted(() => {
-  getSchedules();
+  getUsers();
 });
 </script>
 
 <template>
-  <div class="schedule-form">
-    <h2>Program Ekle</h2>
-    <form @submit.prevent="createNewSchedule">
+  <div class="user-form">
+    <h2>Kullanıcı Ekle</h2>
+    <form @submit.prevent="createNewUser">
       <div class="form-group">
-        <label for="title">Başlık</label>
+        <label for="username">Kullanıcı Adı</label>
         <input
-          v-model="newSchedule.title"
+          v-model="newUser.username"
           type="text"
-          id="title"
-          placeholder="Program başlığını girin"
+          id="username"
+          placeholder="Kullanıcı adını girin"
           required
         />
       </div>
       <div class="form-group">
-        <label for="time">Zaman</label>
+        <label for="email">Email</label>
         <input
-          v-model="newSchedule.time"
-          type="text"
-          id="time"
-          placeholder="Program zamanını girin"
+          v-model="newUser.email"
+          type="email"
+          id="email"
+          placeholder="Kullanıcı email adresini girin"
           required
         />
       </div>
@@ -65,45 +65,50 @@ onMounted(() => {
     </form>
   </div>
 
-  <div class="schedule-table">
-    <h2>Program Listesi</h2>
+  <div class="user-table">
+    <h2>Kullanıcı Listesi</h2>
     <table>
       <thead>
         <tr>
           <th>ID</th>
-          <th>Başlık</th>
-          <th>Zaman</th>
+          <th>Kullanıcı Adı</th>
+          <th>Email</th>
           <th>İşlemler</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="schedule in scheduleStore.stateSchedule" :key="schedule.id">
-          <td>{{ schedule.id }}</td>
-          <td>{{ schedule.title }}</td>
-          <td>{{ schedule.time }}</td>
+        <tr v-for="user in userStore.stateUser" :key="user.id">
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
           <td>
-            <button class="edit-btn" @click="editSchedule(schedule)">Düzenle</button>
-            <button class="delete-btn" @click="deleteSchedule(schedule.id)">Sil</button>
+            <button class="edit-btn" @click="editUser(user)">Düzenle</button>
+            <button class="delete-btn" @click="deleteUser(user.id)">Sil</button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div v-if="isEdit" class="schedule-form">
-    <h3>Program Güncelle</h3>
-    <form @submit.prevent="updateSchedule">
+  <div v-if="isEdit" class="user-form">
+    <h3>Kullanıcı Güncelle</h3>
+    <form @submit.prevent="updateUser">
       <div class="form-group">
         <label for="id">ID</label>
-        <input v-model="selectedSchedule.id" type="text" id="id" disabled />
+        <input v-model="selectedUser.id" type="text" id="id" disabled />
       </div>
       <div class="form-group">
-        <label for="title">Başlık</label>
-        <input v-model="selectedSchedule.title" type="text" id="title" required />
+        <label for="username">Kullanıcı Adı</label>
+        <input
+          v-model="selectedUser.username"
+          type="text"
+          id="username"
+          required
+        />
       </div>
       <div class="form-group">
-        <label for="time">Zaman</label>
-        <input v-model="selectedSchedule.time" type="text" id="time" required />
+        <label for="email">Email</label>
+        <input v-model="selectedUser.email" type="email" id="email" required />
       </div>
       <button type="submit" class="submit-btn">Güncelle</button>
     </form>
@@ -112,8 +117,8 @@ onMounted(() => {
 
 <style scoped>
 /* Genel Stil */
-.schedule-form,
-.schedule-table {
+.user-form,
+.user-table {
   max-width: 800px;
   margin: 20px auto;
   padding: 20px;
@@ -124,8 +129,8 @@ onMounted(() => {
   color: #333;
 }
 
-.schedule-form h2,
-.schedule-table h2 {
+.user-form h2,
+.user-table h2 {
   text-align: center;
   margin-bottom: 20px;
   color: #333;

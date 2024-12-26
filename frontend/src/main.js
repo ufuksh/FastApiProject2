@@ -1,13 +1,13 @@
-import './assets/main.css';
+import { createApp } from "vue";
+import App from "./App.vue";
+import { createPinia } from "pinia";
+import router from "./router";
+import "./assets/base.css"; // Genel stil dosyası
+import "tailwindcss/tailwind.css"; // TailwindCSS framework
 
-import { createApp } from 'vue';
-import App from './App.vue';
-
-import router from "../src/routes/router.js";
-import {createPinia} from "pinia";
-const pinia = createPinia();
 const app = createApp(App);
-app.use(pinia);
 
-app.use(router);
-app.mount('#app');
+app.use(createPinia()); // Pinia'yı kullanıma al
+app.use(router); // Vue Router'ı kullanıma al
+
+app.mount("#app");
