@@ -2,36 +2,57 @@
 import { ref, onMounted } from "vue";
 import { useUserStore } from "@/store/UserStore.ts";
 
+// Pinia Store
 const userStore = useUserStore();
 
+// Düzenleme (edit) durumunu takip eder
 const isEdit = ref(false);
-const selectedUser = ref({ id: null, username: "", email: "" });
 
+// Seçili kullanıcı
+const selectedUser = ref({
+  id: null,
+  username: "",
+  email: "",
+});
+
+// Yeni kullanıcı verisi
+const newUser = ref({
+  username: "",
+  email: "",
+  password: "",
+});
+
+// Tüm kayıtları getir
 const getUsers = async () => {
-  await userStore.getUser();
+  await userStore.getUsers();
 };
 
+// Yeni kullanıcı oluştur
+const createNewUser = async () => {
+  await userStore.createUser(newUser.value);
+  // Formu temizle
+  newUser.value = { username: "", email: "", password: "" };
+};
+
+// Düzenlemeye geç
 const editUser = (user) => {
   isEdit.value = true;
   selectedUser.value = { ...user };
 };
 
+// Güncelle
+const updateUser = async () => {
+  await userStore.updateUser(selectedUser.value);
+  isEdit.value = false;
+  selectedUser.value = { id: null, username: "", email: "" };
+};
+
+// Sil
 const deleteUser = async (id) => {
   await userStore.deleteUser(id);
 };
 
-const updateUser = async () => {
-  await userStore.updateUser(selectedUser.value);
-  isEdit.value = false;
-};
-
-const newUser = ref({ username: "", email: "" });
-
-const createNewUser = async () => {
-  await userStore.createUser(newUser.value);
-  newUser.value = { username: "", email: "" }; // Formu temizle
-};
-
+// Bileşen yüklendiğinde verileri getir
 onMounted(() => {
   getUsers();
 });
@@ -39,29 +60,67 @@ onMounted(() => {
 
 <template>
   <div class="user-form">
-    <h2>Kullanıcı Ekle</h2>
-    <form @submit.prevent="createNewUser">
+    <h2>{{ isEdit ? "Kullanıcı Güncelle" : "Kullanıcı Ekle" }}</h2>
+    <form @submit.prevent="isEdit ? updateUser() : createNewUser()">
       <div class="form-group">
         <label for="username">Kullanıcı Adı</label>
-        <input
-          v-model="newUser.username"
-          type="text"
-          id="username"
-          placeholder="Kullanıcı adını girin"
-          required
-        />
+        <template v-if="isEdit">
+          <input
+            v-model="selectedUser.username"
+            type="text"
+            id="username"
+            placeholder="Kullanıcı adı"
+            required
+          />
+        </template>
+        <template v-else>
+          <input
+            v-model="newUser.username"
+            type="text"
+            id="username"
+            placeholder="Kullanıcı adı"
+            required
+          />
+        </template>
       </div>
+
       <div class="form-group">
         <label for="email">Email</label>
+        <template v-if="isEdit">
+          <input
+            v-model="selectedUser.email"
+            type="email"
+            id="email"
+            placeholder="Kullanıcı email"
+            required
+          />
+        </template>
+        <template v-else>
+          <input
+            v-model="newUser.email"
+            type="email"
+            id="email"
+            placeholder="Kullanıcı email"
+            required
+          />
+        </template>
+      </div>
+
+      <!-- Sadece yeni kullanıcı eklerken gözüken şifre alanı -->
+      <div v-if="!isEdit" class="form-group">
+        <label for="password">Şifre</label>
         <input
-          v-model="newUser.email"
-          type="email"
-          id="email"
-          placeholder="Kullanıcı email adresini girin"
+          v-model="newUser.password"
+          type="password"
+          id="password"
+          placeholder="Kullanıcı şifresi"
           required
         />
       </div>
-      <button type="submit" class="submit-btn">Ekle</button>
+
+      <button type="submit" class="submit-btn">
+        {{ isEdit ? "Güncelle" : "Ekle" }}
+      </button>
     </form>
   </div>
 
@@ -89,51 +148,28 @@ onMounted(() => {
       </tbody>
     </table>
   </div>
-
-  <div v-if="isEdit" class="user-form">
-    <h3>Kullanıcı Güncelle</h3>
-    <form @submit.prevent="updateUser">
-      <div class="form-group">
-        <label for="id">ID</label>
-        <input v-model="selectedUser.id" type="text" id="id" disabled />
-      </div>
-      <div class="form-group">
-        <label for="username">Kullanıcı Adı</label>
-        <input
-          v-model="selectedUser.username"
-          type="text"
-          id="username"
-          required
-        />
-      </div>
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input v-model="selectedUser.email" type="email" id="email" required />
-      </div>
-      <button type="submit" class="submit-btn">Güncelle</button>
-    </form>
-  </div>
 </template>
 
 <style scoped>
-/* Genel Stil */
 .user-form,
 .user-table {
   max-width: 800px;
-  margin: 20px auto;
+  margin: 50px auto;
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  font-family: "Roboto", sans-serif;
-  color: #333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #495057;
+  font-family: Arial, sans-serif;
 }
 
 .user-form h2,
 .user-table h2 {
   text-align: center;
   margin-bottom: 20px;
-  color: #333;
+  color: #343a40;
+  font-size: 1.5rem;
 }
 
 .form-group {
@@ -144,84 +180,100 @@ onMounted(() => {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
+  color: #495057;
 }
 
 .form-group input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #ced4da;
   border-radius: 4px;
   font-size: 1rem;
+  color: #495057;
+  background-color: #ffffff;
+  transition: all 0.3s;
 }
 
 .form-group input:focus {
-  border-color: #1976d2;
+  border-color: #80bdff;
   outline: none;
-  box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 .submit-btn {
   width: 100%;
   padding: 10px;
-  background-color: #1976d2;
+  background-color: #007bff;
   color: white;
   border: none;
   font-size: 1rem;
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: all 0.3s;
 }
 
 .submit-btn:hover {
-  transform: scale(1.05);
+  background-color: #0056b3;
+  transform: scale(1.03);
 }
 
-.submit-btn:active {
-  transform: scale(1);
-}
-
-table {
+.user-table table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
 }
 
-thead th {
-  padding: 10px 20px;
-  font-weight: bold;
-  border-bottom: 2px solid #1976d2;
-  color: #333;
+.user-table thead tr {
+  background-color: #f1f3f5;
+  color: #495057;
 }
 
-tbody td {
+.user-table thead th {
+  padding: 10px;
+  font-weight: bold;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.user-table tbody tr {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.user-table tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.user-table tbody td {
   padding: 10px;
 }
 
 .edit-btn,
 .delete-btn {
-  padding: 5px 10px;
-  margin: 0 5px;
+  padding: 8px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
-  color: white;
+  font-weight: bold;
+  transition: all 0.3s;
+  margin-right: 5px;
 }
 
 .edit-btn {
-  background-color: #ffc107;
+  background-color: #28a745;
+  color: white;
 }
 
 .edit-btn:hover {
-  background-color: #ffca2c;
+  background-color: #218838;
 }
 
 .delete-btn {
-  background-color: #e53935;
+  background-color: #dc3545;
+  color: white;
 }
 
 .delete-btn:hover {
-  background-color: #d32f2f;
+  background-color: #c82333;
 }
 </style>

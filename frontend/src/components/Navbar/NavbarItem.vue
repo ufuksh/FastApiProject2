@@ -1,10 +1,10 @@
 <script setup>
-import {ref} from "vue";
+import { ref } from "vue";
 
 const menuItems = ref([
-  { name: "Home", link: "/home" },
+  { name: "Home", link: "/" },
   { name: "Students", link: "/students" },
-  { name: "Teacher", link: "/teacher" },
+  { name: "Teachers", link: "/teachers" },
   { name: "Schedules", link: "/schedules" },
   { name: "Users", link: "/users" },
 ]);
@@ -13,15 +13,19 @@ const menuItems = ref([
 <template>
   <nav class="navbar">
     <div class="navbar-brand">
-      <img class="ktu" src="./img/ktu.png" alt="logo">
+      <img class="ktu" src="./img/ktu.png" alt="logo" />
     </div>
-    <input class="search-input" type="text" placeholder="Search...">
+
+    <input class="search-input" type="text" placeholder="Search..." />
+
     <ul class="navbar-menu">
       <li v-for="item in menuItems" :key="item.name" class="navbar-item">
-        <a :href="item.link" class="navbar-link">{{ item.name }}</a>
+        <!-- Vue Router'a özel router-link -->
+        <router-link :to="item.link" class="navbar-link">
+          {{ item.name }}
+        </router-link>
       </li>
     </ul>
-
   </nav>
 </template>
 
@@ -36,7 +40,7 @@ const menuItems = ref([
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  background-color: #ffffff; /* Beyaz arka plan */
+  background-color: #ffffff;
   color: #333333;
   position: sticky;
   top: 0;
@@ -86,7 +90,7 @@ const menuItems = ref([
 }
 
 .navbar-link:hover::after {
-  width: 100%; /* Alt çizgi sağa kayacak */
+  width: 100%;
 }
 
 .navbar-link:hover {
