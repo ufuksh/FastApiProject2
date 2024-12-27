@@ -1,4 +1,3 @@
-// frontend/src/store/backendStore.ts
 import { defineStore } from "pinia";
 import axios, { AxiosResponse } from "axios";
 
@@ -31,12 +30,12 @@ export const useBackendStore = defineStore("backendStore", () => {
   });
 
   // Öğrenci CRUD Metodları
-  const getStudents = (): Promise<AxiosResponse<Student[]>> => backend.get("/students/");
-  const createStudent = (studentData: Partial<Student>): Promise<AxiosResponse<Student>> => backend.post("/students/", studentData);
+  const getStudents = (): Promise<AxiosResponse<Student[]>> => backend.get("/students");
+  const createStudent = (studentData: Partial<Student>): Promise<AxiosResponse<Student>> => backend.post("/students", studentData);
 
   const getStudentById = async (studentId: string): Promise<AxiosResponse<Student>> => {
     try {
-      return await backend.get(`/students/${studentId}/`);
+      return await backend.get(`/students/${studentId}`);
     } catch (error) {
       console.error('Error fetching student:', error);
       throw error;
@@ -44,14 +43,17 @@ export const useBackendStore = defineStore("backendStore", () => {
   };
 
   const updateStudent = async (uuid: string, data: Partial<Student>): Promise<AxiosResponse<Student>> => {
-    return await axios.put(`/students/${uuid}`, data); // PUT
+    try {
+      return await backend.put(`/students/${uuid}`, data); // `backend` kullanımı
+    } catch (error) {
+      console.error('Error updating student:', error);
+      throw error;
+    }
   };
-  
 
   const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> => {
     try {
-      const response = await backend.delete(`/students/${studentUuid}`);
-      return response;
+      return await backend.delete(`/students/${studentUuid}`);
     } catch (error: any) {
       if (error.response?.status === 405) {
         console.error('DELETE method not allowed. Please check backend configuration.');
@@ -65,7 +67,7 @@ export const useBackendStore = defineStore("backendStore", () => {
   // Program CRUD Metodları
   const getSchedules = async (): Promise<AxiosResponse<Schedule[]>> => {
     try {
-      return await backend.get("/schedules/");
+      return await backend.get("/schedules");
     } catch (error) {
       console.error('Error fetching schedules:', error);
       throw error;
@@ -74,7 +76,7 @@ export const useBackendStore = defineStore("backendStore", () => {
 
   const createSchedule = async (scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => {
     try {
-      return await backend.post("/schedules/", scheduleData);
+      return await backend.post("/schedules", scheduleData);
     } catch (error) {
       console.error('Error creating schedule:', error);
       throw error;
@@ -83,7 +85,7 @@ export const useBackendStore = defineStore("backendStore", () => {
 
   const getScheduleById = async (scheduleId: string): Promise<AxiosResponse<Schedule>> => {
     try {
-      return await backend.get(`/schedules/${scheduleId}/`);
+      return await backend.get(`/schedules/${scheduleId}`);
     } catch (error) {
       console.error('Error fetching schedule:', error);
       throw error;
@@ -92,7 +94,7 @@ export const useBackendStore = defineStore("backendStore", () => {
 
   const updateSchedule = async (scheduleId: string, scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => {
     try {
-      return await backend.patch(`/schedules/${scheduleId}/`, scheduleData);
+      return await backend.put(`/schedules/${scheduleId}`, scheduleData); // `PUT` yerine `PATCH` varsa backend kontrol edin
     } catch (error) {
       console.error('Error updating schedule:', error);
       throw error;
@@ -101,7 +103,7 @@ export const useBackendStore = defineStore("backendStore", () => {
 
   const deleteSchedule = async (scheduleId: string): Promise<AxiosResponse<void>> => {
     try {
-      return await backend.delete(`/schedules/${scheduleId}/`);
+      return await backend.delete(`/schedules/${scheduleId}`);
     } catch (error) {
       console.error('Error deleting schedule:', error);
       throw error;

@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from . import models, schemas
 from uuid import UUID
 from passlib.context import CryptContext
@@ -11,30 +12,18 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # -----------------------------
 
 def get_user_by_username(db: Session, username: str):
-    """
-    Kullanıcıyı kullanıcı adına göre getirir.
-    """
     print(f"get_user_by_username: Kullanıcı adı: {username}")
     return db.query(models.User).filter(models.User.username == username).first()
 
 def get_user_by_id(db: Session, user_id: UUID):
-    """
-    Kullanıcıyı ID'ye göre getirir.
-    """
     print(f"get_user_by_id: Kullanıcı ID: {user_id}")
-    return db.query(models.User).filter(models.User.id == str(user_id)).first()
+    return db.query(models.User).filter(models.User.id == user_id).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
-    """
-    Tüm kullanıcıları getirir (sayfalama destekli).
-    """
     print(f"get_users: Skip={skip}, Limit={limit}")
     return db.query(models.User).offset(skip).limit(limit).all()
 
 def create_user(db: Session, user: schemas.UserCreate):
-    """
-    Yeni bir kullanıcı oluşturur.
-    """
     print(f"create_user: Yeni kullanıcı oluşturuluyor: {user.username}")
     hashed_password = pwd_context.hash(user.password)
     db_user = models.User(
@@ -48,29 +37,27 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 def update_user(db: Session, user_id: UUID, user_update: schemas.UserUpdate):
-    """
-    Mevcut bir kullanıcının bilgilerini günceller.
-    """
     print(f"update_user: Kullanıcı ID={user_id} güncelleniyor.")
     db_user = get_user_by_id(db, user_id)
-    if db_user:
-        update_data = user_update.dict(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(db_user, key, value)
-        db.commit()
-        db.refresh(db_user)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    update_data = user_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_user, key, value)
+    db.commit()
+    db.refresh(db_user)
     return db_user
 
 def delete_user(db: Session, user_id: UUID):
-    """
-    Mevcut bir kullanıcıyı siler.
-    """
     print(f"delete_user: Kullanıcı ID={user_id} siliniyor.")
     db_user = get_user_by_id(db, user_id)
-    if db_user:
-        db.delete(db_user)
-        db.commit()
-    return db_user
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    db.delete(db_user)
+    db.commit()
+    return {"detail": "User deleted successfully"}
 
 # -----------------------------
 # Student CRUD
@@ -78,7 +65,10 @@ def delete_user(db: Session, user_id: UUID):
 
 def get_student(db: Session, student_id: UUID):
     print(f"get_student: Öğrenci ID={student_id}")
-    return db.query(models.Student).filter(models.Student.id == str(student_id)).first()
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return student
 
 def get_students(db: Session, skip: int = 0, limit: int = 100):
     print(f"get_students: Skip={skip}, Limit={limit}")
@@ -102,21 +92,19 @@ def create_student(db: Session, student: schemas.StudentCreate):
 def update_student(db: Session, student_id: UUID, student: schemas.StudentUpdate):
     print(f"update_student: Öğrenci ID={student_id} güncelleniyor.")
     db_student = get_student(db, student_id)
-    if db_student:
-        update_data = student.dict(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(db_student, key, value)
-        db.commit()
-        db.refresh(db_student)
+    update_data = student.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_student, key, value)
+    db.commit()
+    db.refresh(db_student)
     return db_student
 
 def delete_student(db: Session, student_id: UUID):
     print(f"delete_student: Öğrenci ID={student_id} siliniyor.")
     db_student = get_student(db, student_id)
-    if db_student:
-        db.delete(db_student)
-        db.commit()
-    return db_student
+    db.delete(db_student)
+    db.commit()
+    return {"detail": "Student deleted successfully"}
 
 # -----------------------------
 # Teacher CRUD
@@ -124,7 +112,10 @@ def delete_student(db: Session, student_id: UUID):
 
 def get_teacher(db: Session, teacher_id: UUID):
     print(f"get_teacher: Öğretmen ID={teacher_id}")
-    return db.query(models.Teacher).filter(models.Teacher.id == str(teacher_id)).first()
+    teacher = db.query(models.Teacher).filter(models.Teacher.id == teacher_id).first()
+    if not teacher:
+        raise HTTPException(status_code=404, detail="Teacher not found")
+    return teacher
 
 def get_teachers(db: Session, skip: int = 0, limit: int = 100):
     print(f"get_teachers: Skip={skip}, Limit={limit}")
@@ -147,21 +138,19 @@ def create_teacher(db: Session, teacher: schemas.TeacherCreate):
 def update_teacher(db: Session, teacher_id: UUID, teacher: schemas.TeacherUpdate):
     print(f"update_teacher: Öğretmen ID={teacher_id} güncelleniyor.")
     db_teacher = get_teacher(db, teacher_id)
-    if db_teacher:
-        update_data = teacher.dict(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(db_teacher, key, value)
-        db.commit()
-        db.refresh(db_teacher)
+    update_data = teacher.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_teacher, key, value)
+    db.commit()
+    db.refresh(db_teacher)
     return db_teacher
 
 def delete_teacher(db: Session, teacher_id: UUID):
     print(f"delete_teacher: Öğretmen ID={teacher_id} siliniyor.")
     db_teacher = get_teacher(db, teacher_id)
-    if db_teacher:
-        db.delete(db_teacher)
-        db.commit()
-    return db_teacher
+    db.delete(db_teacher)
+    db.commit()
+    return {"detail": "Teacher deleted successfully"}
 
 # -----------------------------
 # Schedule CRUD
@@ -169,7 +158,10 @@ def delete_teacher(db: Session, teacher_id: UUID):
 
 def get_schedule(db: Session, schedule_id: UUID):
     print(f"get_schedule: Program ID={schedule_id}")
-    return db.query(models.ClassSchedule).filter(models.ClassSchedule.id == str(schedule_id)).first()
+    schedule = db.query(models.ClassSchedule).filter(models.ClassSchedule.id == schedule_id).first()
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    return schedule
 
 def get_schedules(db: Session, skip: int = 0, limit: int = 100):
     print(f"get_schedules: Skip={skip}, Limit={limit}")
@@ -193,18 +185,16 @@ def create_schedule(db: Session, schedule: schemas.ScheduleCreate):
 def update_schedule(db: Session, schedule_id: UUID, schedule: schemas.ScheduleUpdate):
     print(f"update_schedule: Program ID={schedule_id} güncelleniyor.")
     db_schedule = get_schedule(db, schedule_id)
-    if db_schedule:
-        update_data = schedule.dict(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(db_schedule, key, value)
-        db.commit()
-        db.refresh(db_schedule)
+    update_data = schedule.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_schedule, key, value)
+    db.commit()
+    db.refresh(db_schedule)
     return db_schedule
 
 def delete_schedule(db: Session, schedule_id: UUID):
     print(f"delete_schedule: Program ID={schedule_id} siliniyor.")
     db_schedule = get_schedule(db, schedule_id)
-    if db_schedule:
-        db.delete(db_schedule)
-        db.commit()
-    return db_schedule
+    db.delete(db_schedule)
+    db.commit()
+    return {"detail": "Schedule deleted successfully"}

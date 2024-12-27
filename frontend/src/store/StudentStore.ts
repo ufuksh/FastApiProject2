@@ -55,20 +55,39 @@ export const useStudentStore = defineStore("studentStore", () => {
     }
   }
 
-  // Öğrenci günceller
-  async function updateStudent(updatedStudent: Student) {
-    try {
-      const response = await backendStore.updateStudent(updatedStudent.id, updatedStudent); // PUT kullanımı
-      console.log("PUT /api/students yanıtı:", response.data);
-      const index = students.value.findIndex(student => student.id === updatedStudent.id);
-      if (index !== -1) {
-        students.value[index] = response.data;
-      }
-    } catch (error) {
-      console.error("PUT /api/students hata:", error);
+// Öğrenci günceller
+async function updateStudent(updatedStudent: Student) {
+  isLoading.value = true;
+  try {
+    if (!isValidUUID(updatedStudent.id)) {
+      console.error("Geçersiz UUID:", updatedStudent.id);
+      errorMessage.value = "Geçersiz öğrenci ID'si.";
+      return;
+    }
+
+    const response = await backendStore.updateStudent(updatedStudent.id, updatedStudent); // PUT kullanımı
+    console.log("PUT /api/students yanıtı:", response.data);
+
+    const index = students.value.findIndex(student => student.id === updatedStudent.id);
+    if (index !== -1) {
+      students.value[index] = response.data;
+    } else {
+      console.warn("Güncellenmek istenen öğrenci listede bulunamadı.");
+    }
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      errorMessage.value = "Güncellenmek istenen öğrenci bulunamadı.";
+    } else if (error.response?.status === 405) {
+      errorMessage.value = "Güncelleme yöntemi desteklenmiyor. Backend yapılandırmasını kontrol edin.";
+    } else {
       errorMessage.value = "Öğrenci güncellenirken bir hata oluştu.";
     }
+    console.error("PUT /api/students hata:", error);
+  } finally {
+    isLoading.value = false;
   }
+}
+
   
   
   
