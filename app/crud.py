@@ -67,7 +67,7 @@ def update_user(db: Session, user_id: UUID, user_update: schemas.UserUpdate):
     print(f"update_user: Kullanıcı ID={user_id} güncelleniyor.")
     db_user = get_user_by_id(db, user_id)
     if db_user:
-        update_data = user_update.dict(exclude_unset=True)
+        update_data = user_update.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_user, key, value)
         db.commit()
@@ -134,7 +134,7 @@ def update_student(db: Session, student_id: UUID, student: schemas.StudentUpdate
     print(f"update_student: Öğrenci ID={student_id} güncelleniyor.")
     db_student = get_student(db, student_id)
     if db_student:
-        update_data = student.dict(exclude_unset=True)
+        update_data = student.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_student, key, value)
         db.commit()
@@ -197,7 +197,7 @@ def update_teacher(db: Session, teacher_id: UUID, teacher: schemas.TeacherUpdate
     print(f"update_teacher: Öğretmen ID={teacher_id} güncelleniyor.")
     db_teacher = get_teacher(db, teacher_id)
     if db_teacher:
-        update_data = teacher.dict(exclude_unset=True)
+        update_data = teacher.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_teacher, key, value)
         db.commit()
@@ -261,7 +261,7 @@ def update_schedule(db: Session, schedule_id: UUID, schedule: schemas.ScheduleUp
     print(f"update_schedule: Program ID={schedule_id} güncelleniyor.")
     db_schedule = get_schedule(db, schedule_id)
     if db_schedule:
-        update_data = schedule.dict(exclude_unset=True)
+        update_data = schedule.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_schedule, key, value)
         db.commit()

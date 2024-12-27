@@ -41,9 +41,11 @@ def create_schedule(schedule: schemas.ScheduleCreate, db: Session = Depends(get_
             raise HTTPException(status_code=400, detail=f"Invalid UUID format for {field}")
 
     # Öğrenci ve öğretmen varlığını kontrol et
-    if not (student := crud.get_student(db, schedule.student_id)):
+    student = crud.get_student(db, schedule.student_id)
+    if not student:
         raise HTTPException(status_code=404, detail=f"Student with id {schedule.student_id} not found")
-    if not (teacher := crud.get_teacher(db, schedule.teacher_id)):
+    teacher = crud.get_teacher(db, schedule.teacher_id)
+    if not teacher:
         raise HTTPException(status_code=404, detail=f"Teacher with id {schedule.teacher_id} not found")
 
     # Yeni program oluştur
@@ -63,9 +65,10 @@ def read_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
         UUID(str(schedule_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format for schedule_id")
-
+    db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
     # Programı getir
     if not (db_schedule := crud.get_schedule(db, schedule_id=schedule_id)):
+        raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
         raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
 
     return db_schedule
