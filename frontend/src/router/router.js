@@ -6,6 +6,7 @@ import Users from "../components/User/User.vue";
 import Home from "../components/Home/HomePage.vue";
 
 const routes = [
+    { path: "/", redirect: "/home" }, // Ana sayfaya yönlendirme
     { path: "/students", name: "Students", component: Students },
     { path: "/teacher", name: "Teacher", component: Teacher },
     { path: "/schedules", name: "Schedules", component: Schedules },
