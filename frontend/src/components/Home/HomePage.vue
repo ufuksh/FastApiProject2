@@ -6,7 +6,6 @@ import apiClient from "@/api/api.js"; // API istekleri için doğru yolu kontrol
 const students = ref([]);
 const teachers = ref([]);
 const schedules = ref([]);
-const users = ref([]);
 const isLoading = ref(false);
 
 // API'den verileri al
@@ -14,17 +13,15 @@ const fetchData = async () => {
   isLoading.value = true;
   try {
     // Tüm API çağrılarını aynı anda çalıştırmak için Promise.all kullanıyoruz
-    const [studentsRes, teachersRes, schedulesRes, usersRes] = await Promise.all([
+    const [studentsRes, teachersRes, schedulesRes] = await Promise.all([
       apiClient.getStudents(),
       apiClient.getTeachers(),
       apiClient.getSchedules(),
-      apiClient.getUsers(),
     ]);
     // Gelen verileri ref'lere atama
     students.value = studentsRes.data || [];
     teachers.value = teachersRes.data || [];
     schedules.value = schedulesRes.data || [];
-    users.value = usersRes.data || [];
   } catch (error) {
     console.error("Veriler alınırken hata oluştu:", error);
   } finally {
@@ -107,27 +104,6 @@ onMounted(() => {
               <td>{{ schedule.title }}</td>
               <td>{{ schedule.start_time }}</td>
               <td>{{ schedule.end_time }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Kullanıcılar Tablosu -->
-      <div class="table-section">
-        <h2>Kullanıcılar</h2>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Kullanıcı Adı</th>
-              <th>Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="user in users" :key="user.id">
-              <td>{{ user.id }}</td>
-              <td>{{ user.username }}</td>
-              <td>{{ user.email }}</td>
             </tr>
           </tbody>
         </table>
