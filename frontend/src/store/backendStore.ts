@@ -72,32 +72,50 @@ export const useBackendStore = defineStore("backendStore", () => {
     }
   };
 
-  // Öğretmen CRUD Metodları
-  const getTeachers = (): Promise<AxiosResponse<Teacher[]>> => backend.get("/teachers/");
-  const createTeacher = (teacherData: Partial<Teacher>): Promise<AxiosResponse<Teacher>> => backend.post("/teachers/", teacherData);
+ // Öğretmen CRUD Metodları
+const getTeachers = async (): Promise<Teacher[]> => {
+  try {
+    const response: AxiosResponse<Teacher[]> = await backend.get("/teachers/");
+    return response.data as unknown as Teacher[]; // Gelen veriyi doğru tipe dönüştür
+  } catch (error) {
+    console.error("GET /teachers hata:", error);
+    throw new Error("Öğretmenleri alırken bir hata oluştu.");
+  }
+};
 
-  const getTeacherById = async (teacherId: string): Promise<AxiosResponse<Teacher>> => {
-    try {
-      return await backend.get(`/teachers/${teacherId}/`);
-    } catch (error) {
-      console.error("Error fetching teacher:", error);
-      throw error;
-    }
-  };
+const createTeacher = async (teacherData: Partial<Teacher>): Promise<Teacher> => {
+  try {
+    const response: AxiosResponse<Teacher> = await backend.post("/teachers/", teacherData);
+    return response.data as unknown as Teacher; // Gelen veriyi doğru tipe dönüştür
+  } catch (error) {
+    console.error("POST /teachers hata:", error);
+    throw new Error("Öğretmen oluşturulurken bir hata oluştu.");
+  }
+};
 
-  const updateTeacher = async (uuid: string, data: Partial<Teacher>): Promise<AxiosResponse<Teacher>> => {
-    return await backend.put(`/teachers/${uuid}`, data);
-  };
+const getTeacherById = async (teacherId: string): Promise<Teacher> => {
+  try {
+    const response: AxiosResponse<Teacher> = await backend.get(`/teachers/${teacherId}/`);
+    return response.data as unknown as Teacher; // Gelen veriyi doğru tipe dönüştür
+  } catch (error) {
+    console.error("GET /teachers/{id} hata:", error);
+    throw new Error("Öğretmen detayını alırken bir hata oluştu.");
+  }
+};
 
-  const deleteTeacher = async (teacherUuid: string): Promise<AxiosResponse<void>> => {
-    try {
-      const response = await backend.delete(`/teachers/${teacherUuid}`);
-      return response;
-    } catch (error: any) {
-      console.error("Error deleting teacher:", error);
-      throw error;
-    }
-  };
+const updateTeacher = async (uuid: string, data: Partial<Teacher>): Promise<AxiosResponse<Teacher>> => {
+  return await backend.put(`/teachers/${uuid}`, data); // PUT kullanımı
+};
+
+const deleteTeacher = async (teacherUuid: string): Promise<AxiosResponse<void>> => {
+  try {
+    const response = await backend.delete(`/teachers/${teacherUuid}`);
+    return response;
+  } catch (error: any) {
+    console.error("Error deleting teacher:", error);
+    throw error;
+  }
+};
 
   // Kullanıcı CRUD Metodları
   const getUsers = (): Promise<AxiosResponse<User[]>> => backend.get("/users/");

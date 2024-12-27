@@ -7,7 +7,7 @@ interface Teacher {
   id: string; // UUID olarak kullanılıyor
   first_name: string;
   last_name: string;
-  email: string;
+  email?: string;
   subject_specialization?: string;
   contact_info?: string;
 }
@@ -29,10 +29,10 @@ async function fetchTeachers() {
   isLoading.value = true;
   try {
     const response = await backendStore.getTeachers();
-    console.log("GET /api/teachers yanıtı:", response.data);
+    console.log("GET /api/teachers yanıtı:", response);
 
     // response.data'yı önce unknown sonra Teacher[] olarak cast ediyoruz
-    teachers.value = response.data as unknown as Teacher[];
+    teachers.value = response as unknown as Teacher[];
   } catch (error) {
     console.error("GET /api/teachers hata:", error);
     errorMessage.value = "Öğretmenleri getirirken bir hata oluştu.";
@@ -46,7 +46,7 @@ async function fetchTeachers() {
     isLoading.value = true;
     try {
       const response = await backendStore.createTeacher(newTeacher);
-      teachers.value.push(response.data as unknown as Teacher); // Yeni öğretmen listeye eklenir
+      teachers.value.push(response as unknown as Teacher); // Yeni öğretmen listeye eklenir
     } catch (error) {
       console.error("POST /api/teachers hata:", error);
       errorMessage.value = "Yeni öğretmen eklerken bir hata oluştu.";
@@ -111,7 +111,7 @@ async function fetchTeachers() {
     isLoading.value = true;
     try {
       const response = await backendStore.getTeacherById(teacherId);
-      return response.data as unknown as Teacher;
+      return response as unknown as Teacher;
     } catch (error) {
       console.error("GET /api/teachers hata:", error);
       errorMessage.value = "Öğretmen getirilirken bir hata oluştu.";
