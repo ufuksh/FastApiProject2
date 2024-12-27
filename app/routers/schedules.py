@@ -7,7 +7,7 @@ from .. import schemas, crud
 from ..database import SessionLocal
 
 router = APIRouter(
-    prefix="/api/schedules",
+    prefix="",
     tags=["schedules"],
 )
 
