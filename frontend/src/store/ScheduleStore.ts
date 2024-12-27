@@ -16,6 +16,8 @@ interface Schedule {
 export const useScheduleStore = defineStore("scheduleStore", () => {
   const backendStore = useBackendStore();
   const schedules = ref<Schedule[]>([]);
+  const students = ref([]);  // Öğrenci listesi
+  const teachers = ref([]);  // Öğretmen listesi
   const isLoading = ref(false);
   const errorMessage = ref("");
 
@@ -35,6 +37,34 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
     } catch (error) {
       console.error("GET /api/schedules hata:", error);
       errorMessage.value = "Programları getirirken bir hata oluştu.";
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Öğrencileri al
+  async function getStudents() {
+    isLoading.value = true;
+    try {
+      const response = await backendStore.getStudents();
+      students.value = response.data;  // Öğrencileri kaydet
+    } catch (error) {
+      console.error("GET /api/students hata:", error);
+      errorMessage.value = "Öğrencileri getirirken bir hata oluştu.";
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Öğretmenleri al
+  async function getTeachers() {
+    isLoading.value = true;
+    try {
+      const response = await backendStore.getTeachers();
+      teachers.value = response;  // Öğretmenleri kaydet
+    } catch (error) {
+      console.error("GET /api/teachers hata:", error);
+      errorMessage.value = "Öğretmenleri getirirken bir hata oluştu.";
     } finally {
       isLoading.value = false;
     }
@@ -101,11 +131,11 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
       errorMessage.value = "Geçersiz program ID'si.";
       return;
     }
-
+  
     isLoading.value = true;
     try {
       await backendStore.deleteSchedule(scheduleId);
-      schedules.value = schedules.value.filter((s) => s.id !== scheduleId); // Silinen programı listeden çıkarıyoruz
+      schedules.value = schedules.value.filter((s) => s.id !== scheduleId);
     } catch (error) {
       console.error("DELETE /api/schedules hata:", error);
       errorMessage.value = "Programı silerken bir hata oluştu.";
@@ -136,9 +166,13 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
 
   return {
     schedules,
+    students,
+    teachers,
     isLoading,
     errorMessage,
     getSchedules,
+    getStudents,
+    getTeachers,
     createSchedule,
     updateSchedule,
     deleteSchedule,
