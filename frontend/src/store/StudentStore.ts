@@ -59,25 +59,19 @@ export const useStudentStore = defineStore("studentStore", () => {
   async function updateStudent(updatedStudent: Student) {
     isLoading.value = true;
     try {
-      if (!isValidUUID(updatedStudent.id)) {
-        console.error("Geçersiz UUID:", updatedStudent.id);
-        errorMessage.value = "Geçersiz öğrenci ID'si.";
-        return;
-      }
       const response = await backendStore.updateStudent(updatedStudent.id, updatedStudent); // PUT kullanımı
       console.log("PUT /api/students/{id} yanıtı:", response.data);
-  
       const index = students.value.findIndex(student => student.id === updatedStudent.id);
       if (index !== -1) {
         students.value[index] = response.data;
       }
     } catch (error) {
       console.error("PUT /api/students hata:", error);
-      errorMessage.value = "Öğrenciyi güncellerken bir hata oluştu.";
     } finally {
       isLoading.value = false;
     }
   }
+  
   
   
 
