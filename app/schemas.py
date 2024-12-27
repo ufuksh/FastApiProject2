@@ -59,7 +59,6 @@ class StudentResponse(StudentBase):
     id: UUID
     created_at: datetime
     updated_at: datetime
-    schedules: List[ScheduleResponse] = []
 
     class Config:
         orm_mode = True
@@ -89,7 +88,6 @@ class TeacherResponse(TeacherBase):
     id: UUID
     created_at: datetime
     updated_at: datetime
-    schedules: List[ScheduleResponse] = []
 
     class Config:
         orm_mode = True
@@ -121,8 +119,8 @@ class ScheduleResponse(ScheduleBase):
     id: UUID
     created_at: datetime
     updated_at: datetime
-    student: StudentResponse
-    teacher: TeacherResponse
+    student: Optional[StudentResponse]
+    teacher: Optional[TeacherResponse]
 
     class Config:
         orm_mode = True
