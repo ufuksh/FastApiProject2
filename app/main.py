@@ -47,13 +47,13 @@ else:
 # ----------------------------
 # Vue Router (history mode) kullanıyorsanız, /students, /teachers gibi URL'ler
 # direkt açıldığında FastAPI bu isteği index.html'e yönlendirmeli
-@app.get("/{full_path:path}")
-async def catch_all(full_path: str):
+#@app.get("/{full_path:path}")
+#async def catch_all(full_path: str):
     # Eğer yol "/api" ile başlıyorsa bu endpoint devreye girmesin
-    if full_path.startswith("api"):
-        return {"error": "API yolları catch-all tarafından işlenmiyor."}
+    #if full_path.startswith("api"):
+        #return {"error": "API yolları catch-all tarafından işlenmiyor."}
 
-    index_file = os.path.join(DIST_DIR, "index.html")
-    if os.path.exists(index_file):
-        return FileResponse(index_file)
-    return {"error": "index.html bulunamadı. Lütfen frontend'i build edin."}
+    #index_file = os.path.join(DIST_DIR, "index.html")
+    #if os.path.exists(index_file):
+        #return FileResponse(index_file)
+    #return {"error": "index.html bulunamadı. Lütfen frontend'i build edin."}
