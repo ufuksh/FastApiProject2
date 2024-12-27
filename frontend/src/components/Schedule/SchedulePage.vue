@@ -33,41 +33,15 @@ const newSchedule = ref({
 });
 
 // Computed properties for v-model binding
-const currentTitle = computed({
+const currentSchedule = computed({
   get() {
-    return isEdit.value ? selectedSchedule.value.title : newSchedule.value.title;
+    return isEdit.value ? selectedSchedule.value : newSchedule.value;
   },
   set(value) {
     if (isEdit.value) {
-      selectedSchedule.value.title = value;
+      selectedSchedule.value = value;
     } else {
-      newSchedule.value.title = value;
-    }
-  },
-});
-
-const currentStartTime = computed({
-  get() {
-    return isEdit.value ? selectedSchedule.value.start_time : newSchedule.value.start_time;
-  },
-  set(value) {
-    if (isEdit.value) {
-      selectedSchedule.value.start_time = value;
-    } else {
-      newSchedule.value.start_time = value;
-    }
-  },
-});
-
-const currentEndTime = computed({
-  get() {
-    return isEdit.value ? selectedSchedule.value.end_time : newSchedule.value.end_time;
-  },
-  set(value) {
-    if (isEdit.value) {
-      selectedSchedule.value.end_time = value;
-    } else {
-      newSchedule.value.end_time = value;
+      newSchedule.value = value;
     }
   },
 });
@@ -218,9 +192,9 @@ onMounted(() => {
       </div>
 
       <div class="form-group">
-          v-model="currentEndTime"
+        <label for="start_time">Başlangıç Zamanı</label>
         <input
-          v-model="currentStartTime"
+          v-model="currentSchedule.start_time"
           type="datetime-local"
           id="start_time"
           placeholder="Başlangıç zamanı"
@@ -231,16 +205,7 @@ onMounted(() => {
       <div class="form-group">
         <label for="end_time">Bitiş Zamanı</label>
         <input
-          v-if="isEdit"
-          v-model="selectedSchedule.end_time"
-          type="datetime-local"
-          id="end_time"
-          placeholder="Bitiş zamanı"
-          required
-        />
-        <input
-          v-else
-          v-model="newSchedule.end_time"
+          v-model="currentSchedule.end_time"
           type="datetime-local"
           id="end_time"
           placeholder="Bitiş zamanı"
@@ -250,51 +215,19 @@ onMounted(() => {
 
       <div class="form-group">
         <label for="student_id">Öğrenci</label>
-      <select
-        v-model="currentStudentId"
-        id="student_id"
-        required
-      >
-        <option value="" disabled>Öğrenci Seçin</option>
-        <option
-          v-for="student in scheduleStore.students"
-          :key="student.id"
-          :value="student.id"
-        >
-          {{ student.first_name }} {{ student.last_name }}
-        </option>
-      </select>
+        <select v-model="currentSchedule.student_id" id="student_id" required>
+          <option value="" disabled>Öğrenci Seçin</option>
+          <option v-for="student in scheduleStore.students" :key="student.id" :value="student.id">
+            {{ student.first_name }} {{ student.last_name }}
+          </option>
+        </select>
       </div>
 
       <div class="form-group">
         <label for="teacher_id">Öğretmen</label>
-        <select
-          v-if="isEdit"
-          v-model="selectedSchedule.teacher_id"
-          id="teacher_id"
-          required
-        >
+        <select v-model="currentSchedule.teacher_id" id="teacher_id" required>
           <option value="" disabled>Öğretmen Seçin</option>
-          <option
-            v-for="teacher in scheduleStore.teachers"
-            :key="teacher.id"
-            :value="teacher.id"
-          >
-            {{ teacher.first_name }} {{ teacher.last_name }}
-          </option>
-        </select>
-        <select
-          v-else
-          v-model="newSchedule.teacher_id"
-          id="teacher_id"
-          required
-        >
-          <option value="" disabled>Öğretmen Seçin</option>
-          <option
-            v-for="teacher in scheduleStore.teachers"
-            :key="teacher.id"
-            :value="teacher.id"
-          >
+          <option v-for="teacher in scheduleStore.teachers" :key="teacher.id" :value="teacher.id">
             {{ teacher.first_name }} {{ teacher.last_name }}
           </option>
         </select>
@@ -325,12 +258,8 @@ onMounted(() => {
           <td>{{ schedule.start_time }}</td>
           <td>{{ schedule.end_time }}</td>
           <td>
-            <button class="edit-btn" @click="editSchedule(schedule)">
-              Düzenle
-            </button>
-            <button class="delete-btn" @click="deleteSchedule(schedule.id)">
-              Sil
-            </button>
+            <button class="edit-btn" @click="editSchedule(schedule)">Düzenle</button>
+            <button class="delete-btn" @click="deleteSchedule(schedule.id)">Sil</button>
           </td>
         </tr>
       </tbody>
