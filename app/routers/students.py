@@ -84,7 +84,7 @@ def update_student(student_id: UUID, student: schemas.StudentUpdate, db: Session
     return updated_student
 
 
-@router.delete("/{student_id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.delete("/{student_id:uuid}", response_model=dict, status_code=status.HTTP_200_OK)
 def delete_student(student_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir öğrenci kaydını siler.
