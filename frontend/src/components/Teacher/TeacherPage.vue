@@ -40,13 +40,24 @@ const getTeachers = async () => {
 
 // Yeni öğretmen oluşturur
 const createNewTeacher = async () => {
+  // Gerekli alanların kontrolü
   if (!newTeacher.value.first_name || !newTeacher.value.last_name) {
     alert("Lütfen öğretmenin adını ve soyadını giriniz.");
     return;
   }
-  
+
+  // Verilerin doğruluğunu kontrol et
+  if (!isValidUUID(newTeacher.value.id)) {
+    alert("Geçersiz UUID formatı.");
+    return;
+  }
+
+  isLoading.value = true;  // Yükleniyor durumu aç
+
   try {
+    // Yeni öğretmeni backend'e gönder
     await teacherStore.createTeacher(newTeacher.value);
+    
     // Yeni öğretmen eklendikten sonra formu sıfırlıyoruz
     newTeacher.value = {
       first_name: "",
@@ -54,8 +65,14 @@ const createNewTeacher = async () => {
       subject_specialization: "",
       contact_info: "",
     };
+
+    // Başarılı işlem sonrası feedback
+    alert("Öğretmen başarıyla eklendi!");
   } catch (error) {
     console.error("Yeni öğretmen oluşturulurken bir hata oluştu:", error);
+    alert("Bir hata oluştu. Lütfen tekrar deneyiniz.");
+  } finally {
+    isLoading.value = false;  // Yükleniyor durumunu kapat
   }
 };
 
