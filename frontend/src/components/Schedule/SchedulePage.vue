@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useScheduleStore } from "@/store/ScheduleStore.ts";
 
 // Pinia Store
@@ -12,25 +12,74 @@ const isEdit = ref(false);
 const selectedSchedule = ref({
   id: null,
   title: "",
-  time: "",
+  description: "",
+  start_time: "",
+  end_time: "",
+  student_id: "",
+  teacher_id: "",
 });
 
 // Yeni schedule verisi
 const newSchedule = ref({
   title: "",
-  time: "",
+  description: "",
+  start_time: "",
+  end_time: "",
+  student_id: "",
+  teacher_id: "",
+});
+
+// Computed property for v-model binding
+const bindTitle = computed({
+  get: () => (isEdit.value ? selectedSchedule.value.title : newSchedule.value.title),
+  set: (value) => {
+    if (isEdit.value) {
+      selectedSchedule.value.title = value;
+    } else {
+      newSchedule.value.title = value;
+    }
+  },
+});
+
+const bindStartTime = computed({
+  get: () => (isEdit.value ? selectedSchedule.value.start_time : newSchedule.value.start_time),
+  set: (value) => {
+    if (isEdit.value) {
+      selectedSchedule.value.start_time = value;
+    } else {
+      newSchedule.value.start_time = value;
+    }
+  },
+});
+
+const bindEndTime = computed({
+  get: () => (isEdit.value ? selectedSchedule.value.end_time : newSchedule.value.end_time),
+  set: (value) => {
+    if (isEdit.value) {
+      selectedSchedule.value.end_time = value;
+    } else {
+      newSchedule.value.end_time = value;
+    }
+  },
 });
 
 // Tüm kayıtları al
 const getSchedules = async () => {
-  await scheduleStore.getSchedule();
+  await scheduleStore.getSchedules();
 };
 
 // Yeni kayıt oluştur
 const createNewSchedule = async () => {
   await scheduleStore.createSchedule(newSchedule.value);
   // Formu temizle
-  newSchedule.value = { title: "", time: "" };
+  newSchedule.value = {
+    title: "",
+    description: "",
+    start_time: "",
+    end_time: "",
+    student_id: "",
+    teacher_id: "",
+  };
 };
 
 // Düzenlemeye başla
@@ -43,7 +92,15 @@ const editSchedule = (schedule) => {
 const updateSchedule = async () => {
   await scheduleStore.updateSchedule(selectedSchedule.value);
   isEdit.value = false;
-  selectedSchedule.value = { id: null, title: "", time: "" };
+  selectedSchedule.value = {
+    id: null,
+    title: "",
+    description: "",
+    start_time: "",
+    end_time: "",
+    student_id: "",
+    teacher_id: "",
+  };
 };
 
 // Sil
@@ -63,46 +120,35 @@ onMounted(() => {
     <form @submit.prevent="isEdit ? updateSchedule() : createNewSchedule()">
       <div class="form-group">
         <label for="title">Başlık</label>
-        <template v-if="isEdit">
-          <input
-            v-model="selectedSchedule.title"
-            type="text"
-            id="title"
-            placeholder="Program başlığı"
-            required
-          />
-        </template>
-        <template v-else>
-          <input
-            v-model="newSchedule.title"
-            type="text"
-            id="title"
-            placeholder="Program başlığı"
-            required
-          />
-        </template>
+        <input
+          v-model="bindTitle"
+          type="text"
+          id="title"
+          placeholder="Program başlığı"
+          required
+        />
       </div>
 
       <div class="form-group">
-        <label for="time">Zaman</label>
-        <template v-if="isEdit">
-          <input
-            v-model="selectedSchedule.time"
-            type="text"
-            id="time"
-            placeholder="Program zamanı"
-            required
-          />
-        </template>
-        <template v-else>
-          <input
-            v-model="newSchedule.time"
-            type="text"
-            id="time"
-            placeholder="Program zamanı"
-            required
-          />
-        </template>
+        <label for="start_time">Başlangıç Zamanı</label>
+        <input
+          v-model="bindStartTime"
+          type="text"
+          id="start_time"
+          placeholder="Başlangıç zamanı"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="end_time">Bitiş Zamanı</label>
+        <input
+          v-model="bindEndTime"
+          type="text"
+          id="end_time"
+          placeholder="Bitiş zamanı"
+          required
+        />
       </div>
 
       <button type="submit" class="submit-btn">
@@ -118,18 +164,17 @@ onMounted(() => {
         <tr>
           <th>ID</th>
           <th>Başlık</th>
-          <th>Zaman</th>
+          <th>Başlangıç</th>
+          <th>Bitiş</th>
           <th>İşlemler</th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="schedule in scheduleStore.stateSchedule"
-          :key="schedule.id"
-        >
+        <tr v-for="schedule in scheduleStore.schedules" :key="schedule.id">
           <td>{{ schedule.id }}</td>
           <td>{{ schedule.title }}</td>
-          <td>{{ schedule.time }}</td>
+          <td>{{ schedule.start_time }}</td>
+          <td>{{ schedule.end_time }}</td>
           <td>
             <button class="edit-btn" @click="editSchedule(schedule)">
               Düzenle

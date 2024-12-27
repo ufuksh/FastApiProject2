@@ -2,78 +2,108 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useBackendStore } from "@/store/backendStore";
 
+// Kullanıcı Modeli
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  hashed_password?: string; // Bu alan genelde backend'de tutulur, frontend'e gerek olmayabilir
+}
+
 export const useUserStore = defineStore("userStore", () => {
   const backendStore = useBackendStore();
-  const stateUser = ref([]);
+  const users = ref<User[]>([]); // Kullanıcı listesi
+  const isLoading = ref(false); // Yüklenme durumu
+  const errorMessage = ref(""); // Hata mesajı
 
-  // Tüm kullanıcıları getir (Eğer backend'de read_users_users__get varsa)
-  // Not: OpenAPI şemanızda "read_users_users__get" yoksa bu fonksiyonu eklemeyebilirsiniz.
-  async function getUsers() {
-    const backend = backendStore;
-    // Şemanızda "read_users_users__get" şeklinde bir endpoint yoksa bu satır hata verebilir.
-    // Varsa, tıpkı read_students_students__get gibi çağırırsınız:
-    // const response = await backend.read_users_users__get();
-    // stateUser.value = response.data;
-    // (Burada varsayımsal, eğer kullanıcı listeleme yoksa bu fonksiyon gerekmeyebilir.)
+  // Tüm kullanıcıları getir
+  async function fetchUsers() {
+    isLoading.value = true;
+    try {
+      const response = await backendStore.getUsers();
+      console.log("GET /users yanıtı:", response.data);
+      users.value = response.data as User[];
+    } catch (error) {
+      console.error("Kullanıcıları getirirken hata oluştu:", error);
+      errorMessage.value = "Kullanıcıları getirirken bir hata oluştu.";
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // Yeni kullanıcı oluştur
-  async function createUser(newUser) {
-    const backend = await backendStore.backend();
-    // /users/ POST
-    // Fonksiyon imzası: create_user_users__post(parameters?, data?, config?)
-    const response = await backend.create_user_users__post(
-      null,
-      newUser
-    );
-    stateUser.value.push(response.data);
+  async function createUser(newUser: Partial<User>) {
+    isLoading.value = true;
+    try {
+      const response = await backendStore.createUser(newUser);
+      console.log("POST /users yanıtı:", response.data);
+      users.value.push(response.data);
+    } catch (error) {
+      console.error("Kullanıcı oluşturulurken hata oluştu:", error);
+      errorMessage.value = "Kullanıcı oluşturulurken bir hata oluştu.";
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // Kullanıcı güncelle
-  async function updateUser(updatedUser) {
-    const backend = await backendStore.backend();
-    // /users/{user_id} PUT
-    const response = await backend.update_user_users__user_id__put(
-      { user_id: updatedUser.id },
-      updatedUser
-    );
+  async function updateUser(updatedUser: User) {
+    isLoading.value = true;
+    try {
+      const response = await backendStore.updateUser(updatedUser.id, updatedUser);
+      console.log("PUT /users yanıtı:", response.data);
 
-    // Local state'i güncelle
-    const index = stateUser.value.findIndex((u) => u.id === updatedUser.id);
-    if (index !== -1) {
-      // API response’ı tam ne döndürüyor bakmak gerek.
-      // Bazı durumlarda { } boş obje dönebilir, API’nizin implementasyonuna bağlı.
-      // Yine de tutarlılık adına:
-      // stateUser.value[index] = response.data;
+      // Local state'i güncelle
+      const index = users.value.findIndex((user) => user.id === updatedUser.id);
+      if (index !== -1) {
+        users.value[index] = response.data;
+      }
+    } catch (error) {
+      console.error("Kullanıcı güncellenirken hata oluştu:", error);
+      errorMessage.value = "Kullanıcı güncellenirken bir hata oluştu.";
+    } finally {
+      isLoading.value = false;
     }
   }
 
   // Kullanıcı sil
-  async function deleteUser(userId) {
-    const backend = await backendStore.backend();
-    // /users/{user_id} DELETE
-    await backend.delete_user_users__user_id__delete({
-      user_id: userId,
-    });
+  async function deleteUser(userId: string) {
+    isLoading.value = true;
+    try {
+      await backendStore.deleteUser(userId);
+      console.log("DELETE /users yanıtı: Kullanıcı başarıyla silindi");
 
-    // Local state'den çıkar
-    stateUser.value = stateUser.value.filter((u) => u.id !== userId);
+      // Local state'den çıkar
+      users.value = users.value.filter((user) => user.id !== userId);
+    } catch (error) {
+      console.error("Kullanıcı silinirken hata oluştu:", error);
+      errorMessage.value = "Kullanıcı silinirken bir hata oluştu.";
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  // Tek bir kullanıcı getir (id ile) - Şemanızda read_user_users__user_id__get yoksa eklemeyebilirsin
-  async function getUserById(userId) {
-    const backend = await backendStore.backend();
-    // /users/{user_id} GET
-    // Bu endpoint şemanızda tanımlı mı bakın, yoksa 404 verebilir.
-    // const response = await backend.read_user_users__user_id__get({
-    //   user_id: userId,
-    // });
-    // return response.data;
+  // Tek bir kullanıcı getir (ID ile)
+  async function getUserById(userId: string): Promise<User | undefined> {
+    isLoading.value = true;
+    try {
+      const response = await backendStore.getUserById(userId);
+      console.log("GET /users/{id} yanıtı:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Kullanıcı getirilirken hata oluştu:", error);
+      errorMessage.value = "Kullanıcı getirilirken bir hata oluştu.";
+      return undefined;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   return {
-    stateUser,
-    getUsers,
+    users,
+    isLoading,
+    errorMessage,
+    fetchUsers,
     createUser,
     updateUser,
     deleteUser,

@@ -44,6 +44,11 @@ def read_teacher(teacher_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir öğretmeni ID'ye göre getirir.
     """
+    try:
+        UUID(str(teacher_id))  # UUID formatını kontrol et
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
+
     db_teacher = crud.get_teacher(db, teacher_id=teacher_id)
     if not db_teacher:
         raise HTTPException(status_code=404, detail="Teacher not found")
@@ -67,10 +72,15 @@ def update_teacher(teacher_id: UUID, teacher: schemas.TeacherUpdate, db: Session
     """
     Belirli bir öğretmen kaydını günceller.
     """
+    try:
+        UUID(str(teacher_id))  # UUID formatını kontrol et
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
+
     db_teacher = crud.get_teacher(db, teacher_id=teacher_id)
     if not db_teacher:
         raise HTTPException(status_code=404, detail="Teacher not found")
-    
+
     try:
         updated_teacher = crud.update_teacher(db=db, teacher_id=teacher_id, teacher=teacher)
         return updated_teacher
@@ -83,10 +93,15 @@ def delete_teacher(teacher_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir öğretmen kaydını siler.
     """
+    try:
+        UUID(str(teacher_id))  # UUID formatını kontrol et
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
+
     db_teacher = crud.get_teacher(db, teacher_id=teacher_id)
     if not db_teacher:
         raise HTTPException(status_code=404, detail="Teacher not found")
-    
+
     try:
         crud.delete_teacher(db=db, teacher_id=teacher_id)
         return {"message": "Teacher deleted successfully"}

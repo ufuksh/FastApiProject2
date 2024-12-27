@@ -5,7 +5,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import CHAR
 from .database import Base
 
-
 # -----------------------------
 # User Model
 # -----------------------------
@@ -21,9 +20,7 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)  # Optional: for admin privileges
 
     # Relationships (if any)
-    # Örneğin, bir kullanıcının birden fazla programı olabilir
     # schedules = relationship("ClassSchedule", back_populates="user")  # İhtiyaca göre düzenleyin
-
 
 # -----------------------------
 # Student Model
@@ -32,7 +29,7 @@ class User(Base):
 class Student(Base):
     __tablename__ = "students"
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     first_name = Column(String(255), index=True, nullable=False)  # First Name
     last_name = Column(String(255), index=True, nullable=False)   # Last Name
     email = Column(String(255), unique=True, index=True, nullable=False)  # Email
@@ -44,7 +41,6 @@ class Student(Base):
 
     # Relationship to schedules
     schedules = relationship("ClassSchedule", back_populates="student", cascade="all, delete-orphan")
-
 
 # -----------------------------
 # Teacher Model

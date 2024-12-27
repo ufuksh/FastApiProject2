@@ -8,24 +8,26 @@ const teacherStore = useTeacherStore();
 // Düzenleme (edit) durumunu takip eder
 const isEdit = ref(false);
 
-// Seçili teacher
+// Seçili öğretmen
 const selectedTeacher = ref({
   id: "",
   first_name: "",
   last_name: "",
-  department: "",
+  subject_specialization: "",
+  contact_info: "",
 });
 
-// Yeni teacher verisi
+// Yeni öğretmen verisi
 const newTeacher = ref({
   first_name: "",
   last_name: "",
-  department: "",
+  subject_specialization: "",
+  contact_info: "",
 });
 
 // UUID doğrulama fonksiyonu
 const isValidUUID = (uuid) => {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(uuid);
 };
 
@@ -38,14 +40,18 @@ const getTeachers = async () => {
 const createNewTeacher = async () => {
   try {
     await teacherStore.createTeacher(newTeacher.value);
-    // Formu temizle
-    newTeacher.value = { first_name: "", last_name: "", department: "" };
+    newTeacher.value = {
+      first_name: "",
+      last_name: "",
+      subject_specialization: "",
+      contact_info: "",
+    };
   } catch (error) {
     console.error("Yeni öğretmen oluşturulurken bir hata oluştu:", error);
   }
 };
 
-// Düzenlemeye geç
+// Düzenlemeye başla
 const editTeacher = (teacher) => {
   isEdit.value = true;
   selectedTeacher.value = { ...teacher };
@@ -64,7 +70,8 @@ const updateTeacher = async () => {
       id: "",
       first_name: "",
       last_name: "",
-      department: "",
+      subject_specialization: "",
+      contact_info: "",
     };
   } catch (error) {
     console.error("Öğretmen güncellenirken bir hata oluştu:", error);
@@ -98,68 +105,78 @@ onMounted(() => {
     <form @submit.prevent="isEdit ? updateTeacher() : createNewTeacher()">
       <div class="form-group">
         <label for="first_name">Ad</label>
-        <template v-if="isEdit">
-          <input
-            v-model="selectedTeacher.first_name"
-            type="text"
-            id="first_name"
-            placeholder="Öğretmenin adı"
-            required
-          />
-        </template>
-        <template v-else>
-          <input
-            v-model="newTeacher.first_name"
-            type="text"
-            id="first_name"
-            placeholder="Öğretmenin adı"
-            required
-          />
-        </template>
+        <input
+          v-if="isEdit"
+          v-model="selectedTeacher.first_name"
+          type="text"
+          id="first_name"
+          placeholder="Öğretmenin adı"
+          required
+        />
+        <input
+          v-else
+          v-model="newTeacher.first_name"
+          type="text"
+          id="first_name"
+          placeholder="Öğretmenin adı"
+          required
+        />
       </div>
 
       <div class="form-group">
         <label for="last_name">Soyad</label>
-        <template v-if="isEdit">
-          <input
-            v-model="selectedTeacher.last_name"
-            type="text"
-            id="last_name"
-            placeholder="Öğretmenin soyadı"
-            required
-          />
-        </template>
-        <template v-else>
-          <input
-            v-model="newTeacher.last_name"
-            type="text"
-            id="last_name"
-            placeholder="Öğretmenin soyadı"
-            required
-          />
-        </template>
+        <input
+          v-if="isEdit"
+          v-model="selectedTeacher.last_name"
+          type="text"
+          id="last_name"
+          placeholder="Öğretmenin soyadı"
+          required
+        />
+        <input
+          v-else
+          v-model="newTeacher.last_name"
+          type="text"
+          id="last_name"
+          placeholder="Öğretmenin soyadı"
+          required
+        />
       </div>
 
       <div class="form-group">
-        <label for="department">Bölüm</label>
-        <template v-if="isEdit">
-          <input
-            v-model="selectedTeacher.department"
-            type="text"
-            id="department"
-            placeholder="Öğretmenin bölümü"
-            required
-          />
-        </template>
-        <template v-else>
-          <input
-            v-model="newTeacher.department"
-            type="text"
-            id="department"
-            placeholder="Öğretmenin bölümü"
-            required
-          />
-        </template>
+        <label for="subject_specialization">Uzmanlık Alanı</label>
+        <input
+          v-if="isEdit"
+          v-model="selectedTeacher.subject_specialization"
+          type="text"
+          id="subject_specialization"
+          placeholder="Öğretmenin uzmanlık alanı"
+        />
+        <input
+          v-else
+          v-model="newTeacher.subject_specialization"
+          type="text"
+          id="subject_specialization"
+          placeholder="Öğretmenin uzmanlık alanı"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="contact_info">İletişim Bilgisi</label>
+        <input
+          v-if="isEdit"
+          v-model="selectedTeacher.contact_info"
+          type="text"
+          id="contact_info"
+          placeholder="Öğretmenin iletişim bilgisi"
+        />
+        <input
+          v-else
+          v-model="newTeacher.contact_info"
+          type="text"
+          id="contact_info"
+          placeholder="Öğretmenin iletişim bilgisi"
+        />
       </div>
 
       <button type="submit" class="submit-btn">
@@ -175,7 +192,8 @@ onMounted(() => {
         <tr>
           <th>ID</th>
           <th>Ad Soyad</th>
-          <th>Bölüm</th>
+          <th>Uzmanlık Alanı</th>
+          <th>İletişim</th>
           <th>İşlemler</th>
         </tr>
       </thead>
@@ -186,7 +204,8 @@ onMounted(() => {
         >
           <td>{{ teacher.id }}</td>
           <td>{{ teacher.first_name }} {{ teacher.last_name }}</td>
-          <td>{{ teacher.department }}</td>
+          <td>{{ teacher.subject_specialization }}</td>
+          <td>{{ teacher.contact_info }}</td>
           <td>
             <button class="edit-btn" @click="editTeacher(teacher)">
               Düzenle

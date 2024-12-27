@@ -21,6 +21,12 @@ def get_user_by_id(db: Session, user_id: UUID):
     """
     Kullanıcıyı ID'ye göre getirir.
     """
+    try:
+        UUID(str(user_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"get_user_by_id: Kullanıcı ID: {user_id}")
     return db.query(models.User).filter(models.User.id == str(user_id)).first()
 
@@ -51,6 +57,12 @@ def update_user(db: Session, user_id: UUID, user_update: schemas.UserUpdate):
     """
     Mevcut bir kullanıcının bilgilerini günceller.
     """
+    try:
+        UUID(str(user_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"update_user: Kullanıcı ID={user_id} güncelleniyor.")
     db_user = get_user_by_id(db, user_id)
     if db_user:
@@ -65,6 +77,12 @@ def delete_user(db: Session, user_id: UUID):
     """
     Mevcut bir kullanıcıyı siler.
     """
+    try:
+        UUID(str(user_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"delete_user: Kullanıcı ID={user_id} siliniyor.")
     db_user = get_user_by_id(db, user_id)
     if db_user:
@@ -77,6 +95,12 @@ def delete_user(db: Session, user_id: UUID):
 # -----------------------------
 
 def get_student(db: Session, student_id: UUID):
+    try:
+        UUID(str(student_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"get_student: Öğrenci ID={student_id}")
     return db.query(models.Student).filter(models.Student.id == str(student_id)).first()
 
@@ -100,6 +124,12 @@ def create_student(db: Session, student: schemas.StudentCreate):
     return db_student
 
 def update_student(db: Session, student_id: UUID, student: schemas.StudentUpdate):
+    try:
+        UUID(str(student_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"update_student: Öğrenci ID={student_id} güncelleniyor.")
     db_student = get_student(db, student_id)
     if db_student:
@@ -111,6 +141,12 @@ def update_student(db: Session, student_id: UUID, student: schemas.StudentUpdate
     return db_student
 
 def delete_student(db: Session, student_id: UUID):
+    try:
+        UUID(str(student_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"delete_student: Öğrenci ID={student_id} siliniyor.")
     db_student = get_student(db, student_id)
     if db_student:
@@ -123,6 +159,12 @@ def delete_student(db: Session, student_id: UUID):
 # -----------------------------
 
 def get_teacher(db: Session, teacher_id: UUID):
+    try:
+        UUID(str(teacher_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"get_teacher: Öğretmen ID={teacher_id}")
     return db.query(models.Teacher).filter(models.Teacher.id == str(teacher_id)).first()
 
@@ -145,6 +187,12 @@ def create_teacher(db: Session, teacher: schemas.TeacherCreate):
     return db_teacher
 
 def update_teacher(db: Session, teacher_id: UUID, teacher: schemas.TeacherUpdate):
+    try:
+        UUID(str(teacher_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"update_teacher: Öğretmen ID={teacher_id} güncelleniyor.")
     db_teacher = get_teacher(db, teacher_id)
     if db_teacher:
@@ -156,6 +204,12 @@ def update_teacher(db: Session, teacher_id: UUID, teacher: schemas.TeacherUpdate
     return db_teacher
 
 def delete_teacher(db: Session, teacher_id: UUID):
+    try:
+        UUID(str(teacher_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"delete_teacher: Öğretmen ID={teacher_id} siliniyor.")
     db_teacher = get_teacher(db, teacher_id)
     if db_teacher:
@@ -168,6 +222,12 @@ def delete_teacher(db: Session, teacher_id: UUID):
 # -----------------------------
 
 def get_schedule(db: Session, schedule_id: UUID):
+    try:
+        UUID(str(schedule_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"get_schedule: Program ID={schedule_id}")
     return db.query(models.ClassSchedule).filter(models.ClassSchedule.id == str(schedule_id)).first()
 
@@ -191,6 +251,12 @@ def create_schedule(db: Session, schedule: schemas.ScheduleCreate):
     return db_schedule
 
 def update_schedule(db: Session, schedule_id: UUID, schedule: schemas.ScheduleUpdate):
+    try:
+        UUID(str(schedule_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"update_schedule: Program ID={schedule_id} güncelleniyor.")
     db_schedule = get_schedule(db, schedule_id)
     if db_schedule:
@@ -202,6 +268,12 @@ def update_schedule(db: Session, schedule_id: UUID, schedule: schemas.ScheduleUp
     return db_schedule
 
 def delete_schedule(db: Session, schedule_id: UUID):
+    try:
+        UUID(str(schedule_id))  # UUID doğrulama
+    except ValueError:
+        print("Invalid UUID format")
+        return None
+
     print(f"delete_schedule: Program ID={schedule_id} siliniyor.")
     db_schedule = get_schedule(db, schedule_id)
     if db_schedule:

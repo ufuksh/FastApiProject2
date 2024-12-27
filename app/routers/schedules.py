@@ -33,14 +33,20 @@ def create_schedule(schedule: schemas.ScheduleCreate, db: Session = Depends(get_
     """
     Yeni bir program kaydı oluşturur.
     """
+    try:
+        UUID(str(schedule.student_id))
+        UUID(str(schedule.teacher_id))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
+
     student = crud.get_student(db, schedule.student_id)
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
-    
+
     teacher = crud.get_teacher(db, schedule.teacher_id)
     if not teacher:
         raise HTTPException(status_code=404, detail="Teacher not found")
-    
+
     return crud.create_schedule(db=db, schedule=schedule)
 
 
@@ -49,6 +55,11 @@ def read_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir programı ID'ye göre getirir.
     """
+    try:
+        UUID(str(schedule_id))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
+
     db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
     if not db_schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
@@ -60,8 +71,11 @@ def read_schedules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
     """
     Tüm programları getirir.
     """
-    schedules = crud.get_schedules(db, skip=skip, limit=limit)
-    return schedules
+    try:
+        schedules = crud.get_schedules(db, skip=skip, limit=limit)
+        return schedules
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error fetching schedules: {str(e)}")
 
 
 @router.put("/{schedule_id}", response_model=schemas.ScheduleResponse)
@@ -69,12 +83,20 @@ def update_schedule(schedule_id: UUID, schedule: schemas.ScheduleUpdate, db: Ses
     """
     Belirli bir programı günceller.
     """
+    try:
+        UUID(str(schedule_id))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
+
     db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
     if not db_schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
-    
-    updated_schedule = crud.update_schedule(db=db, schedule_id=schedule_id, schedule=schedule)
-    return updated_schedule
+
+    try:
+        updated_schedule = crud.update_schedule(db=db, schedule_id=schedule_id, schedule=schedule)
+        return updated_schedule
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error updating schedule: {str(e)}")
 
 
 @router.delete("/{schedule_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -82,9 +104,17 @@ def delete_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir program kaydını siler.
     """
+    try:
+        UUID(str(schedule_id))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
+
     db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
     if not db_schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
-    
-    crud.delete_schedule(db=db, schedule_id=schedule_id)
-    return {"message": "Schedule deleted successfully"}
+
+    try:
+        crud.delete_schedule(db=db, schedule_id=schedule_id)
+        return {"message": "Schedule deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error deleting schedule: {str(e)}")

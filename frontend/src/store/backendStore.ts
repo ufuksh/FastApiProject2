@@ -20,6 +20,14 @@ interface Teacher {
   department: string;
 }
 
+// Kullanıcı Modeli
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  hashed_password?: string;
+}
+
 // Program Modeli
 interface Schedule {
   id: string;
@@ -52,18 +60,14 @@ export const useBackendStore = defineStore("backendStore", () => {
 
   const updateStudent = async (uuid: string, data: Partial<Student>): Promise<AxiosResponse<Student>> => {
     return await backend.put(`/students/${uuid}`, data); // PUT kullanımı
-  };  
+  };
 
   const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> => {
     try {
       const response = await backend.delete(`/students/${studentUuid}`);
       return response;
     } catch (error: any) {
-      if (error.response?.status === 405) {
-        console.error('DELETE method not allowed. Please check backend configuration.');
-        throw new Error('Delete operation not supported by the server');
-      }
-      console.error('Error deleting student:', error);
+      console.error("Error deleting student:", error);
       throw error;
     }
   };
@@ -82,7 +86,7 @@ export const useBackendStore = defineStore("backendStore", () => {
   };
 
   const updateTeacher = async (uuid: string, data: Partial<Teacher>): Promise<AxiosResponse<Teacher>> => {
-    return await backend.put(`/teachers/${uuid}`, data); // PUT kullanımı
+    return await backend.put(`/teachers/${uuid}`, data);
   };
 
   const deleteTeacher = async (teacherUuid: string): Promise<AxiosResponse<void>> => {
@@ -90,11 +94,34 @@ export const useBackendStore = defineStore("backendStore", () => {
       const response = await backend.delete(`/teachers/${teacherUuid}`);
       return response;
     } catch (error: any) {
-      if (error.response?.status === 405) {
-        console.error("DELETE method not allowed. Please check backend configuration.");
-        throw new Error("Delete operation not supported by the server");
-      }
       console.error("Error deleting teacher:", error);
+      throw error;
+    }
+  };
+
+  // Kullanıcı CRUD Metodları
+  const getUsers = (): Promise<AxiosResponse<User[]>> => backend.get("/users/");
+  const createUser = (userData: Partial<User>): Promise<AxiosResponse<User>> => backend.post("/users/", userData);
+
+  const getUserById = async (userId: string): Promise<AxiosResponse<User>> => {
+    try {
+      return await backend.get(`/users/${userId}/`);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      throw error;
+    }
+  };
+
+  const updateUser = async (uuid: string, data: Partial<User>): Promise<AxiosResponse<User>> => {
+    return await backend.put(`/users/${uuid}`, data);
+  };
+
+  const deleteUser = async (userUuid: string): Promise<AxiosResponse<void>> => {
+    try {
+      const response = await backend.delete(`/users/${userUuid}`);
+      return response;
+    } catch (error: any) {
+      console.error("Error deleting user:", error);
       throw error;
     }
   };
@@ -129,7 +156,7 @@ export const useBackendStore = defineStore("backendStore", () => {
 
   const updateSchedule = async (scheduleId: string, scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => {
     try {
-      return await backend.patch(`/schedules/${scheduleId}/`, scheduleData);
+      return await backend.put(`/schedules/${scheduleId}/`, scheduleData);
     } catch (error) {
       console.error("Error updating schedule:", error);
       throw error;
@@ -159,6 +186,13 @@ export const useBackendStore = defineStore("backendStore", () => {
     getTeacherById,
     updateTeacher,
     deleteTeacher,
+
+    // Kullanıcı Metodları
+    getUsers,
+    createUser,
+    getUserById,
+    updateUser,
+    deleteUser,
 
     // Program Metodları
     getSchedules,
