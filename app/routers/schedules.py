@@ -123,10 +123,7 @@ def delete_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Error deleting schedule: {str(e)}")
 @router.options("/{schedule_id}")
 def options_schedule(schedule_id: UUID):
-    """
-    OPTIONS metodu için yanıt döner.
-    """
-    headers = {
-        "Allow": "GET, POST, PUT, DELETE, OPTIONS",
-    }
-    return JSONResponse(content={"detail": "Available methods: GET, POST, PUT, DELETE, OPTIONS"}, headers=headers)
+    return JSONResponse(
+        headers={"Allow": "GET, POST, PUT, DELETE, OPTIONS"},
+        content={"detail": "Available methods: GET, POST, PUT, DELETE, OPTIONS"}
+    )
