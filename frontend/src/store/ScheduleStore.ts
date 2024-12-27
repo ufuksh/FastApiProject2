@@ -21,8 +21,9 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
   const errorMessage = ref("");
 
   // UUID doğrulama fonksiyonu
+  const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
   function isValidUUID(uuid: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     return uuidRegex.test(uuid);
   }
 
@@ -31,7 +32,7 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
     isLoading.value = true;
     try {
       const response = await backendStore.getSchedules();
-      schedules.value = response.data as unknown as Schedule[]; // Cast işlemi: unknown ardından Schedule[]
+      schedules.value = response.data as unknown as Schedule[];
     } catch (error) {
       console.error("GET /api/schedules hata:", error);
       errorMessage.value = "Programları getirirken bir hata oluştu.";
@@ -42,10 +43,28 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
 
   // Yeni program oluştur
   async function createSchedule(newSchedule: Partial<Schedule>) {
+    // Alan doğrulama
+    if (
+      !newSchedule.title ||
+      !newSchedule.start_time ||
+      !newSchedule.end_time ||
+      !newSchedule.student_id ||
+      !newSchedule.teacher_id
+    ) {
+      errorMessage.value = "Lütfen tüm alanları doldurun.";
+      return;
+    }
+
+    // UUID doğrulama
+    if (!isValidUUID(newSchedule.student_id) || !isValidUUID(newSchedule.teacher_id)) {
+      errorMessage.value = "Geçersiz UUID formatı.";
+      return;
+    }
+
     isLoading.value = true;
     try {
       const response = await backendStore.createSchedule(newSchedule);
-      schedules.value.push(response.data as unknown as Schedule); // Cast işlemi: unknown ardından Schedule
+      schedules.value.push(response.data as unknown as Schedule);
     } catch (error) {
       console.error("POST /api/schedules hata:", error);
       errorMessage.value = "Yeni program eklerken bir hata oluştu.";
@@ -57,7 +76,6 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
   // Program güncelle
   async function updateSchedule(updatedSchedule: Schedule) {
     if (!isValidUUID(updatedSchedule.id)) {
-      console.error("Geçersiz UUID:", updatedSchedule.id);
       errorMessage.value = "Geçersiz program ID'si.";
       return;
     }
@@ -67,7 +85,7 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
       const response = await backendStore.updateSchedule(updatedSchedule.id, updatedSchedule);
       const index = schedules.value.findIndex((s) => s.id === updatedSchedule.id);
       if (index !== -1) {
-        schedules.value[index] = response.data as unknown as Schedule; // Cast işlemi: unknown ardından Schedule
+        schedules.value[index] = response.data as unknown as Schedule;
       }
     } catch (error) {
       console.error("PUT /api/schedules hata:", error);
@@ -80,7 +98,6 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
   // Program sil
   async function deleteSchedule(scheduleId: string) {
     if (!isValidUUID(scheduleId)) {
-      console.error("Geçersiz UUID:", scheduleId);
       errorMessage.value = "Geçersiz program ID'si.";
       return;
     }
@@ -100,7 +117,6 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
   // Tek bir programı ID ile getir
   async function getScheduleById(scheduleId: string): Promise<Schedule | undefined> {
     if (!isValidUUID(scheduleId)) {
-      console.error("Geçersiz UUID:", scheduleId);
       errorMessage.value = "Geçersiz program ID'si.";
       return undefined;
     }
@@ -108,7 +124,7 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
     isLoading.value = true;
     try {
       const response = await backendStore.getScheduleById(scheduleId);
-      return response.data as unknown as Schedule; // Cast işlemi: unknown ardından Schedule
+      return response.data as unknown as Schedule;
     } catch (error) {
       console.error("GET /api/schedules/{id} hata:", error);
       errorMessage.value = "Programı getirirken bir hata oluştu.";
