@@ -1,5 +1,3 @@
-<!-- frontend/src/components/StudentPage.vue -->
-<!-- frontend/src/components/StudentPage.vue -->
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useStudentStore } from "../../store/StudentStore";
@@ -39,21 +37,30 @@ const newStudent = ref<Partial<Student>>({
 // Hata mesajlarını göstermek için
 const showError = ref(false);
 
+// UUID doğrulama fonksiyonu
+function isValidUUID(uuid: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+}
+
 async function getStudents() {
   await studentStore.fetchStudents();
 }
 
 async function createNewStudent() {
-  await studentStore.createStudent(newStudent.value);
-  // Formu temizle
-  newStudent.value = {
-    first_name: "",
-    last_name: "",
-    email: "",
-    date_of_birth: "",
-    grade: "",
-    contact_info: "",
-  };
+  try {
+    await studentStore.createStudent(newStudent.value);
+    newStudent.value = {
+      first_name: "",
+      last_name: "",
+      email: "",
+      date_of_birth: "",
+      grade: "",
+      contact_info: "",
+    };
+  } catch (error) {
+    console.error("Öğrenci eklenirken bir hata oluştu:", error);
+  }
 }
 
 function editStudent(student: Student) {
@@ -66,22 +73,35 @@ async function updateStudent() {
     alert("Güncelleme işlemi için geçerli bir öğrenci seçin.");
     return;
   }
-  await studentStore.updateStudent(selectedStudent.value);
-  isEdit.value = false;
-  selectedStudent.value = {
-    id: "",
-    first_name: "",
-    last_name: "",
-    email: "",
-    date_of_birth: "",
-    grade: "",
-    contact_info: "",
-  };
+  try {
+    await studentStore.updateStudent(selectedStudent.value);
+    isEdit.value = false;
+    selectedStudent.value = {
+      id: "",
+      first_name: "",
+      last_name: "",
+      email: "",
+      date_of_birth: "",
+      grade: "",
+      contact_info: "",
+    };
+  } catch (error) {
+    console.error("Öğrenci güncellenirken bir hata oluştu:", error);
+  }
 }
 
 async function deleteStudent(id: string) {
+  if (!isValidUUID(id)) {
+    alert("Geçersiz UUID formatı.");
+    console.error("Geçersiz UUID:", id);
+    return;
+  }
   if (confirm("Öğrenciyi silmek istediğinize emin misiniz?")) {
-    await studentStore.deleteStudent(id);
+    try {
+      await studentStore.deleteStudent(id);
+    } catch (error) {
+      console.error("Öğrenci silinirken bir hata oluştu:", error);
+    }
   }
 }
 
@@ -92,16 +112,13 @@ onMounted(() => {
 
 <template>
   <div class="student-form">
-    <!-- Başlık: Ekle/Güncelle -->
     <h2 v-if="!isEdit">Öğrenci Ekle</h2>
     <h2 v-else>Öğrenci Güncelle</h2>
 
-    <!-- Hata Mesajı -->
     <div v-if="studentStore.errorMessage" class="error-message">
       {{ studentStore.errorMessage }}
     </div>
 
-    <!-- Form (Ekle veya Güncelle aynı form) -->
     <form @submit.prevent="isEdit ? updateStudent() : createNewStudent()">
       <div class="form-group">
         <label for="first_name">Ad</label>
@@ -163,7 +180,6 @@ onMounted(() => {
         />
       </div>
 
-      <!-- Sadece yeni eklerken gözüken alanlar -->
       <div v-if="!isEdit" class="form-group">
         <label for="date_of_birth">Doğum Tarihi</label>
         <input
@@ -202,7 +218,6 @@ onMounted(() => {
     </form>
   </div>
 
-  <!-- Öğrenci Listesi Tablosu -->
   <div class="student-table">
     <h2>Öğrenci Listesi</h2>
     <table>
@@ -215,18 +230,13 @@ onMounted(() => {
         </tr>
       </thead>
       <tbody>
-        <!-- Burada store’daki diziyle döngü yapıyoruz -->
         <tr v-for="student in studentStore.students" :key="student.id">
           <td>{{ student.id }}</td>
           <td>{{ student.first_name }} {{ student.last_name }}</td>
           <td>{{ student.email }}</td>
           <td>
-            <button class="edit-btn" @click="editStudent(student)">
-              Düzenle
-            </button>
-            <button class="delete-btn" @click="deleteStudent(student.id)">
-              Sil
-            </button>
+            <button class="edit-btn" @click="editStudent(student)">Düzenle</button>
+            <button class="delete-btn" @click="deleteStudent(student.id)">Sil</button>
           </td>
         </tr>
       </tbody>

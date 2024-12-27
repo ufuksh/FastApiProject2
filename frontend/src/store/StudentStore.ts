@@ -1,4 +1,3 @@
-// frontend/src/store/StudentStore.ts
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useBackendStore } from "../store/backendStore"; // Relatif yol ile import
@@ -16,9 +15,15 @@ interface Student {
 
 export const useStudentStore = defineStore("studentStore", () => {
   const backendStore = useBackendStore();
-  const students = ref<Student[]>([]); // stateStudent yerine students
-  const isLoading = ref(false);
-  const errorMessage = ref("");
+  const students = ref<Student[]>([]); // Öğrenci listesini tutan state
+  const isLoading = ref(false); // Yüklenme durumu
+  const errorMessage = ref(""); // Hata mesajı
+
+  // UUID doğrulama fonksiyonu
+  function isValidUUID(uuid: string): boolean {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(uuid);
+  }
 
   // Tüm öğrencileri getirir
   async function fetchStudents() {
@@ -41,9 +46,7 @@ export const useStudentStore = defineStore("studentStore", () => {
     try {
       const response = await backendStore.createStudent(newStudent);
       console.log("POST /api/students yanıtı:", response.data);
-      students.value.push(response.data);
-      // İsteğe bağlı olarak listeyi tekrar çekebilirsiniz
-      // await fetchStudents();
+      students.value.push(response.data); // Listeye yeni öğrenci eklenir
     } catch (error) {
       console.error("POST /api/students hata:", error);
       errorMessage.value = "Yeni öğrenci eklerken bir hata oluştu.";
@@ -56,14 +59,21 @@ export const useStudentStore = defineStore("studentStore", () => {
   async function updateStudent(updatedStudent: Student) {
     isLoading.value = true;
     try {
+      if (!isValidUUID(updatedStudent.id)) {
+        console.error("Geçersiz UUID:", updatedStudent.id);
+        errorMessage.value = "Geçersiz öğrenci ID'si.";
+        return;
+      }
       const response = await backendStore.updateStudent(updatedStudent.id, updatedStudent);
-      console.log("PATCH /api/students/{id} yanıtı:", response.data);
+      console.log("PUT /api/students/{id} yanıtı:", response.data);
+
+      // Listede güncellenen öğrenciyi değiştir
       const index = students.value.findIndex(student => student.id === updatedStudent.id);
       if (index !== -1) {
         students.value[index] = response.data;
       }
     } catch (error) {
-      console.error("PATCH /api/students hata:", error);
+      console.error("PUT /api/students hata:", error);
       errorMessage.value = "Öğrenciyi güncellerken bir hata oluştu.";
     } finally {
       isLoading.value = false;
@@ -74,8 +84,15 @@ export const useStudentStore = defineStore("studentStore", () => {
   async function deleteStudent(studentId: string) {
     isLoading.value = true;
     try {
+      if (!isValidUUID(studentId)) {
+        console.error("Geçersiz UUID:", studentId);
+        errorMessage.value = "Geçersiz öğrenci ID'si.";
+        return;
+      }
       await backendStore.deleteStudent(studentId);
       console.log("DELETE /api/students yanıtı: Silme başarılı");
+
+      // Listeden silinen öğrenciyi kaldır
       students.value = students.value.filter(student => student.id !== studentId);
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -93,6 +110,11 @@ export const useStudentStore = defineStore("studentStore", () => {
   async function getStudentById(studentId: string): Promise<Student | undefined> {
     isLoading.value = true;
     try {
+      if (!isValidUUID(studentId)) {
+        console.error("Geçersiz UUID:", studentId);
+        errorMessage.value = "Geçersiz öğrenci ID'si.";
+        return undefined;
+      }
       const response = await backendStore.getStudentById(studentId);
       return response.data;
     } catch (error: any) {
@@ -102,13 +124,14 @@ export const useStudentStore = defineStore("studentStore", () => {
         errorMessage.value = "Öğrenci getirilirken bir hata oluştu.";
       }
       console.error("GET /api/students hata:", error);
+      return undefined;
     } finally {
       isLoading.value = false;
     }
   }
 
   return {
-    students, // stateStudent yerine students
+    students,
     isLoading,
     errorMessage,
     fetchStudents,
