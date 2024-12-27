@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import apiClient from "@/api/api"; // API istekleri için kullandığınız yapı
+import apiClient from "@/api/api.js"; // API istekleri için doğru yolu kontrol edin
 
 // Veri durumları
 const students = ref([]);
@@ -13,12 +13,14 @@ const isLoading = ref(false);
 const fetchData = async () => {
   isLoading.value = true;
   try {
+    // Tüm API çağrılarını aynı anda çalıştırmak için Promise.all kullanıyoruz
     const [studentsRes, teachersRes, schedulesRes, usersRes] = await Promise.all([
       apiClient.getStudents(),
       apiClient.getTeachers(),
       apiClient.getSchedules(),
       apiClient.getUsers(),
     ]);
+    // Gelen verileri ref'lere atama
     students.value = studentsRes.data;
     teachers.value = teachersRes.data;
     schedules.value = schedulesRes.data;
