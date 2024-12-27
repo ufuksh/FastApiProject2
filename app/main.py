@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routers import students, teachers, schedules, users
 
 # FastAPI uygulaması
-app = FastAPI()
+app = FastAPI(title="Öğrenci Yönetim Sistemi", version="1.0.0")
 
 # ----------------------------
 # CORS Ayarları
@@ -36,7 +36,6 @@ app.include_router(users.router, prefix="/api/users", tags=["users"])
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DIST_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "frontend", "dist"))
 
-# Eğer build alınmış Vue dist klasörü varsa
 if os.path.exists(DIST_DIR):
     app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="static")
 else:
@@ -45,15 +44,15 @@ else:
 # ----------------------------
 # Vue.js Catch-All Endpoint
 # ----------------------------
-# Vue Router (history mode) kullanıyorsanız, /students, /teachers gibi URL'ler
-# direkt açıldığında FastAPI bu isteği index.html'e yönlendirmeli
-#@app.get("/{full_path:path}")
-#async def catch_all(full_path: str):
-    # Eğer yol "/api" ile başlıyorsa bu endpoint devreye girmesin
-    #if full_path.startswith("api"):
-        #return {"error": "API yolları catch-all tarafından işlenmiyor."}
+@app.get("/{full_path:path}")
+async def catch_all(full_path: str):
+    """
+    Vue Router (history mode) kullanıyorsanız, frontend URL'lerini handle eder.
+    """
+    if full_path.startswith("api"):
+        return {"error": "API yolları catch-all tarafından işlenmiyor."}
 
-    #index_file = os.path.join(DIST_DIR, "index.html")
-    #if os.path.exists(index_file):
-        #return FileResponse(index_file)
-    #return {"error": "index.html bulunamadı. Lütfen frontend'i build edin."}
+    index_file = os.path.join(DIST_DIR, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return {"error": "index.html bulunamadı. Lütfen frontend'i build edin."}
