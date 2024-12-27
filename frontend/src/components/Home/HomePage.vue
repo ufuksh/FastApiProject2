@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import apiClient from "@/api"; // API istekleri için kullandığınız yapı
+import apiClient from "@/api/api"; // API istekleri için kullandığınız yapı
 
 // Veri durumları
 const students = ref([]);
