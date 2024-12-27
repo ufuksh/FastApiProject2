@@ -68,15 +68,12 @@ def read_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     return students
 
 
-@router.put("/{student_id:uuid}", response_model=schemas.StudentResponse)
-def update_student(student_id: UUID, student_update: schemas.StudentUpdate, db: Session = Depends(get_db)):
-    print(f"PUT için gelen student_id: {student_id}")
+@router.put("/{student_id}", response_model=schemas.StudentResponse, status_code=status.HTTP_200_OK)
+def update_student(student_id: UUID, student: schemas.StudentUpdate, db: Session = Depends(get_db)):
     db_student = crud.get_student(db, student_id=student_id)
     if not db_student:
         raise HTTPException(status_code=404, detail="Student not found")
-
-    updated_student = crud.update_student(db, student_id, student_update)
-    print(f"Güncellenen öğrenci: {updated_student}")
+    updated_student = crud.update_student(db=db, student_id=student_id, student=student)
     return updated_student
 
 
