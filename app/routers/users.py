@@ -8,7 +8,7 @@ from .. import crud, models
 from ..database import SessionLocal
 
 router = APIRouter(
-    prefix="/users",
+    prefix="",
     tags=["users"],
 )
 
