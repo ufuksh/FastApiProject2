@@ -10,7 +10,7 @@ const isEdit = ref(false);
 
 // Seçili teacher
 const selectedTeacher = ref({
-  id: null,
+  id: "",
   first_name: "",
   last_name: "",
   department: "",
@@ -23,16 +23,26 @@ const newTeacher = ref({
   department: "",
 });
 
-// Tüm kayıtları getir
-const getTeachers = async () => {
-  await teacherStore.getTeacher();
+// UUID doğrulama fonksiyonu
+const isValidUUID = (uuid) => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
 };
 
-// Yeni kayıt oluştur
+// Tüm öğretmenleri getirir
+const getTeachers = async () => {
+  await teacherStore.fetchTeachers();
+};
+
+// Yeni öğretmen oluşturur
 const createNewTeacher = async () => {
-  await teacherStore.createTeacher(newTeacher.value);
-  // Formu temizle
-  newTeacher.value = { first_name: "", last_name: "", department: "" };
+  try {
+    await teacherStore.createTeacher(newTeacher.value);
+    // Formu temizle
+    newTeacher.value = { first_name: "", last_name: "", department: "" };
+  } catch (error) {
+    console.error("Yeni öğretmen oluşturulurken bir hata oluştu:", error);
+  }
 };
 
 // Düzenlemeye geç
@@ -43,22 +53,40 @@ const editTeacher = (teacher) => {
 
 // Güncelle
 const updateTeacher = async () => {
-  await teacherStore.updateTeacher(selectedTeacher.value);
-  isEdit.value = false;
-  selectedTeacher.value = {
-    id: null,
-    first_name: "",
-    last_name: "",
-    department: "",
-  };
+  if (!isValidUUID(selectedTeacher.value.id)) {
+    alert("Geçersiz öğretmen ID'si.");
+    return;
+  }
+  try {
+    await teacherStore.updateTeacher(selectedTeacher.value);
+    isEdit.value = false;
+    selectedTeacher.value = {
+      id: "",
+      first_name: "",
+      last_name: "",
+      department: "",
+    };
+  } catch (error) {
+    console.error("Öğretmen güncellenirken bir hata oluştu:", error);
+  }
 };
 
-// Sil
+// Öğretmeni siler
 const deleteTeacher = async (id) => {
-  await teacherStore.deleteTeacher(id);
+  if (!isValidUUID(id)) {
+    alert("Geçersiz öğretmen ID'si.");
+    return;
+  }
+  if (confirm("Bu öğretmeni silmek istediğinize emin misiniz?")) {
+    try {
+      await teacherStore.deleteTeacher(id);
+    } catch (error) {
+      console.error("Öğretmen silinirken bir hata oluştu:", error);
+    }
+  }
 };
 
-// Bileşen yüklendiğinde verileri getir
+// Bileşen yüklendiğinde öğretmen listesini getir
 onMounted(() => {
   getTeachers();
 });
@@ -153,7 +181,7 @@ onMounted(() => {
       </thead>
       <tbody>
         <tr
-          v-for="teacher in teacherStore.stateTeacher"
+          v-for="teacher in teacherStore.teachers"
           :key="teacher.id"
         >
           <td>{{ teacher.id }}</td>

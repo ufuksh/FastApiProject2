@@ -1,4 +1,3 @@
-// frontend/src/store/backendStore.ts
 import { defineStore } from "pinia";
 import axios, { AxiosResponse } from "axios";
 
@@ -11,6 +10,14 @@ interface Student {
   date_of_birth?: string;
   grade?: string;
   contact_info?: string;
+}
+
+// Öğretmen Modeli
+interface Teacher {
+  id: string;
+  first_name: string;
+  last_name: string;
+  department: string;
 }
 
 // Program Modeli
@@ -46,7 +53,6 @@ export const useBackendStore = defineStore("backendStore", () => {
   const updateStudent = async (uuid: string, data: Partial<Student>): Promise<AxiosResponse<Student>> => {
     return await backend.put(`/students/${uuid}`, data); // PUT kullanımı
   };  
-  
 
   const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> => {
     try {
@@ -62,12 +68,43 @@ export const useBackendStore = defineStore("backendStore", () => {
     }
   };
 
+  // Öğretmen CRUD Metodları
+  const getTeachers = (): Promise<AxiosResponse<Teacher[]>> => backend.get("/teachers/");
+  const createTeacher = (teacherData: Partial<Teacher>): Promise<AxiosResponse<Teacher>> => backend.post("/teachers/", teacherData);
+
+  const getTeacherById = async (teacherId: string): Promise<AxiosResponse<Teacher>> => {
+    try {
+      return await backend.get(`/teachers/${teacherId}/`);
+    } catch (error) {
+      console.error("Error fetching teacher:", error);
+      throw error;
+    }
+  };
+
+  const updateTeacher = async (uuid: string, data: Partial<Teacher>): Promise<AxiosResponse<Teacher>> => {
+    return await backend.put(`/teachers/${uuid}`, data); // PUT kullanımı
+  };
+
+  const deleteTeacher = async (teacherUuid: string): Promise<AxiosResponse<void>> => {
+    try {
+      const response = await backend.delete(`/teachers/${teacherUuid}`);
+      return response;
+    } catch (error: any) {
+      if (error.response?.status === 405) {
+        console.error("DELETE method not allowed. Please check backend configuration.");
+        throw new Error("Delete operation not supported by the server");
+      }
+      console.error("Error deleting teacher:", error);
+      throw error;
+    }
+  };
+
   // Program CRUD Metodları
   const getSchedules = async (): Promise<AxiosResponse<Schedule[]>> => {
     try {
       return await backend.get("/schedules/");
     } catch (error) {
-      console.error('Error fetching schedules:', error);
+      console.error("Error fetching schedules:", error);
       throw error;
     }
   };
@@ -76,7 +113,7 @@ export const useBackendStore = defineStore("backendStore", () => {
     try {
       return await backend.post("/schedules/", scheduleData);
     } catch (error) {
-      console.error('Error creating schedule:', error);
+      console.error("Error creating schedule:", error);
       throw error;
     }
   };
@@ -85,7 +122,7 @@ export const useBackendStore = defineStore("backendStore", () => {
     try {
       return await backend.get(`/schedules/${scheduleId}/`);
     } catch (error) {
-      console.error('Error fetching schedule:', error);
+      console.error("Error fetching schedule:", error);
       throw error;
     }
   };
@@ -94,7 +131,7 @@ export const useBackendStore = defineStore("backendStore", () => {
     try {
       return await backend.patch(`/schedules/${scheduleId}/`, scheduleData);
     } catch (error) {
-      console.error('Error updating schedule:', error);
+      console.error("Error updating schedule:", error);
       throw error;
     }
   };
@@ -103,7 +140,7 @@ export const useBackendStore = defineStore("backendStore", () => {
     try {
       return await backend.delete(`/schedules/${scheduleId}/`);
     } catch (error) {
-      console.error('Error deleting schedule:', error);
+      console.error("Error deleting schedule:", error);
       throw error;
     }
   };
@@ -115,6 +152,13 @@ export const useBackendStore = defineStore("backendStore", () => {
     getStudentById,
     updateStudent,
     deleteStudent,
+
+    // Öğretmen Metodları
+    getTeachers,
+    createTeacher,
+    getTeacherById,
+    updateTeacher,
+    deleteTeacher,
 
     // Program Metodları
     getSchedules,

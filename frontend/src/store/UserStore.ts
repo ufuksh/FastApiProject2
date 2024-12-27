@@ -9,7 +9,7 @@ export const useUserStore = defineStore("userStore", () => {
   // Tüm kullanıcıları getir (Eğer backend'de read_users_users__get varsa)
   // Not: OpenAPI şemanızda "read_users_users__get" yoksa bu fonksiyonu eklemeyebilirsiniz.
   async function getUsers() {
-    const backend = await backendStore.backend();
+    const backend = backendStore;
     // Şemanızda "read_users_users__get" şeklinde bir endpoint yoksa bu satır hata verebilir.
     // Varsa, tıpkı read_students_students__get gibi çağırırsınız:
     // const response = await backend.read_users_users__get();

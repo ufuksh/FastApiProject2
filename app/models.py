@@ -53,18 +53,21 @@ class Student(Base):
 class Teacher(Base):
     __tablename__ = "teachers"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))  # UUID as Primary Key
     first_name = Column(String(255), index=True, nullable=False)  # First Name
     last_name = Column(String(255), index=True, nullable=False)   # Last Name
-    email = Column(String(255), unique=True, index=True, nullable=False)  # Email
+    email = Column(String(255), unique=True, index=True, nullable=False)  # Email (Unique)
     subject_specialization = Column(String(255), nullable=True)   # Subject Specialization
     contact_info = Column(String(255), nullable=True)             # Contact Information
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)        # Creation timestamp
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # Update timestamp
 
     # Relationship to schedules
-    schedules = relationship("ClassSchedule", back_populates="teacher", cascade="all, delete-orphan")
-
+    schedules = relationship(
+        "ClassSchedule",
+        back_populates="teacher",
+        cascade="all, delete-orphan"
+    )
 
 # -----------------------------
 # ClassSchedule Model

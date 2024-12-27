@@ -33,7 +33,10 @@ def create_teacher(teacher: schemas.TeacherCreate, db: Session = Depends(get_db)
     """
     Yeni bir öğretmen kaydı oluşturur.
     """
-    return crud.create_teacher(db=db, teacher=teacher)
+    try:
+        return crud.create_teacher(db=db, teacher=teacher)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error creating teacher: {str(e)}")
 
 
 @router.get("/{teacher_id}", response_model=schemas.TeacherResponse)
@@ -52,8 +55,11 @@ def read_teachers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     """
     Tüm öğretmen kayıtlarını getirir.
     """
-    teachers = crud.get_teachers(db, skip=skip, limit=limit)
-    return teachers
+    try:
+        teachers = crud.get_teachers(db, skip=skip, limit=limit)
+        return teachers
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error fetching teachers: {str(e)}")
 
 
 @router.put("/{teacher_id}", response_model=schemas.TeacherResponse)
@@ -65,8 +71,11 @@ def update_teacher(teacher_id: UUID, teacher: schemas.TeacherUpdate, db: Session
     if not db_teacher:
         raise HTTPException(status_code=404, detail="Teacher not found")
     
-    updated_teacher = crud.update_teacher(db=db, teacher_id=teacher_id, teacher=teacher)
-    return updated_teacher
+    try:
+        updated_teacher = crud.update_teacher(db=db, teacher_id=teacher_id, teacher=teacher)
+        return updated_teacher
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error updating teacher: {str(e)}")
 
 
 @router.delete("/{teacher_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -78,5 +87,8 @@ def delete_teacher(teacher_id: UUID, db: Session = Depends(get_db)):
     if not db_teacher:
         raise HTTPException(status_code=404, detail="Teacher not found")
     
-    crud.delete_teacher(db=db, teacher_id=teacher_id)
-    return {"message": "Teacher deleted successfully"}
+    try:
+        crud.delete_teacher(db=db, teacher_id=teacher_id)
+        return {"message": "Teacher deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error deleting teacher: {str(e)}")
