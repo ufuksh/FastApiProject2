@@ -32,7 +32,7 @@ class User(Base):
 class Student(Base):
     __tablename__ = "students"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     first_name = Column(String(255), index=True, nullable=False)  # First Name
     last_name = Column(String(255), index=True, nullable=False)   # Last Name
     email = Column(String(255), unique=True, index=True, nullable=False)  # Email
