@@ -54,7 +54,7 @@ export const useBackendStore = defineStore("backendStore", () => {
 
   const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> => {
     try {
-      const response = await backend.delete(`/students/${studentUuid}/`);
+      const response = await backend.delete(`/students/${studentUuid}`);
       return response;
     } catch (error: any) {
       if (error.response?.status === 405) {
