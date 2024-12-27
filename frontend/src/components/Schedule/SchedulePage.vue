@@ -61,6 +61,24 @@ const getSchedules = async () => {
   }
 };
 
+// Öğrencileri al
+const getStudents = async () => {
+  try {
+    await scheduleStore.getStudents();
+  } catch (error) {
+    console.error("Öğrenciler alınırken bir hata oluştu:", error);
+  }
+};
+
+// Öğretmenleri al
+const getTeachers = async () => {
+  try {
+    await scheduleStore.getTeachers();
+  } catch (error) {
+    console.error("Öğretmenler alınırken bir hata oluştu:", error);
+  }
+};
+
 // Yeni program oluştur
 const createNewSchedule = async () => {
   if (
@@ -170,9 +188,11 @@ const deleteSchedule = async (id) => {
   }
 };
 
-// Bileşen yüklendiğinde programları getir
+// Bileşen yüklendiğinde programları ve kullanıcıları getir
 onMounted(() => {
   getSchedules();
+  getStudents();  // Öğrencileri al
+  getTeachers();  // Öğretmenleri al
 });
 </script>
 
