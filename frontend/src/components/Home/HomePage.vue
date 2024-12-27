@@ -21,10 +21,10 @@ const fetchData = async () => {
       apiClient.getUsers(),
     ]);
     // Gelen verileri ref'lere atama
-    students.value = studentsRes.data;
-    teachers.value = teachersRes.data;
-    schedules.value = schedulesRes.data;
-    users.value = usersRes.data;
+    students.value = studentsRes.data || [];
+    teachers.value = teachersRes.data || [];
+    schedules.value = schedulesRes.data || [];
+    users.value = usersRes.data || [];
   } catch (error) {
     console.error("Veriler alınırken hata oluştu:", error);
   } finally {
