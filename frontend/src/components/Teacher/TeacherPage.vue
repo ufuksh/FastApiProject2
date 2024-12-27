@@ -40,8 +40,14 @@ const getTeachers = async () => {
 
 // Yeni öğretmen oluşturur
 const createNewTeacher = async () => {
+  if (!newTeacher.value.first_name || !newTeacher.value.last_name) {
+    alert("Lütfen öğretmenin adını ve soyadını giriniz.");
+    return;
+  }
+  
   try {
     await teacherStore.createTeacher(newTeacher.value);
+    // Yeni öğretmen eklendikten sonra formu sıfırlıyoruz
     newTeacher.value = {
       first_name: "",
       last_name: "",
