@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from . import models, schemas
 from uuid import UUID
 from passlib.context import CryptContext
+from fastapi import HTTPException
 
 # Parola hashleme context'i
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -268,15 +269,28 @@ def update_schedule(db: Session, schedule_id: UUID, schedule: schemas.ScheduleUp
     return db_schedule
 
 def delete_schedule(db: Session, schedule_id: UUID):
+    """
+    Belirtilen programı (schedule) siler.
+    """
     try:
-        UUID(str(schedule_id))  # UUID doğrulama
+        # UUID doğrulaması
+        UUID(str(schedule_id))
     except ValueError:
-        print("Invalid UUID format")
-        return None
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
 
     print(f"delete_schedule: Program ID={schedule_id} siliniyor.")
+
+    # Programı veritabanından al
     db_schedule = get_schedule(db, schedule_id)
-    if db_schedule:
+    if not db_schedule:
+        raise HTTPException(status_code=404, detail=f"Schedule with ID {schedule_id} not found")
+
+    try:
+        # Programı sil ve değişiklikleri kaydet
         db.delete(db_schedule)
         db.commit()
-    return db_schedule
+        print(f"delete_schedule: Program ID={schedule_id} başarıyla silindi.")
+        return {"message": "Schedule deleted successfully"}
+    except Exception as e:
+        print(f"delete_schedule: Program silinirken bir hata oluştu: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while deleting the schedule")

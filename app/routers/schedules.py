@@ -112,17 +112,16 @@ def delete_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
     Belirli bir program kaydını siler.
     """
     try:
-        if not isinstance(schedule_id, UUID):
-            raise ValueError
+        UUID(str(schedule_id))  # UUID doğrulaması
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid UUID format for schedule_id")
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
 
     db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
     if not db_schedule:
-        raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
+        raise HTTPException(status_code=404, detail="Schedule not found")
 
     try:
         crud.delete_schedule(db=db, schedule_id=schedule_id)
         return {"message": "Schedule deleted successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error deleting schedule: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error deleting schedule: {str(e)}")

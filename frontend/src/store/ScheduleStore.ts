@@ -98,10 +98,11 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
   // Program sil
   async function deleteSchedule(scheduleId: string) {
     if (!isValidUUID(scheduleId)) {
+      console.error("Geçersiz UUID:", scheduleId);
       errorMessage.value = "Geçersiz program ID'si.";
       return;
     }
-
+  
     isLoading.value = true;
     try {
       await backendStore.deleteSchedule(scheduleId);
