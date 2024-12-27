@@ -69,7 +69,7 @@ function editStudent(student: Student) {
 }
 
 async function updateStudent() {
-  if (!selectedStudent.value.id) {
+  if (!selectedStudent.value.id || !isValidUUID(selectedStudent.value.id)) {
     alert("Güncelleme işlemi için geçerli bir öğrenci seçin.");
     return;
   }
@@ -89,6 +89,7 @@ async function updateStudent() {
     console.error("Öğrenci güncellenirken bir hata oluştu:", error);
   }
 }
+
 
 async function deleteStudent(id: string) {
   if (!isValidUUID(id)) {
