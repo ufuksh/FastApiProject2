@@ -64,10 +64,9 @@ export const useStudentStore = defineStore("studentStore", () => {
         errorMessage.value = "Geçersiz öğrenci ID'si.";
         return;
       }
-      const response = await backendStore.updateStudent(updatedStudent.id, updatedStudent);
+      const response = await backendStore.updateStudent(updatedStudent.id, updatedStudent); // PUT kullanımı
       console.log("PUT /api/students/{id} yanıtı:", response.data);
   
-      // Listede güncellenen öğrenciyi değiştir
       const index = students.value.findIndex(student => student.id === updatedStudent.id);
       if (index !== -1) {
         students.value[index] = response.data;
@@ -79,6 +78,7 @@ export const useStudentStore = defineStore("studentStore", () => {
       isLoading.value = false;
     }
   }
+  
   
 
   // Öğrenci siler
