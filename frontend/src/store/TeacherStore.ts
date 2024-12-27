@@ -18,28 +18,28 @@ export const useTeacherStore = defineStore("teacherStore", () => {
   const isLoading = ref(false); // Yüklenme durumu
   const errorMessage = ref(""); // Hata mesajı
 
-  // UUID doğrulama fonksiyonu
+  // UUID doğrulama fonksiyonu (Tekrar tanımlamayı önlemek için burada sadece bir kez tanımlanmıştır)
   function isValidUUID(uuid: string): boolean {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     return uuidRegex.test(uuid);
   }
 
-// Tüm öğretmenleri getirir
-async function fetchTeachers() {
-  isLoading.value = true;
-  try {
-    const response = await backendStore.getTeachers();
-    console.log("GET /api/teachers yanıtı:", response);
+  // Tüm öğretmenleri getirir
+  async function fetchTeachers() {
+    isLoading.value = true;
+    try {
+      const response = await backendStore.getTeachers();
+      console.log("GET /api/teachers yanıtı:", response);
 
-    // response.data'yı önce unknown sonra Teacher[] olarak cast ediyoruz
-    teachers.value = response as unknown as Teacher[];
-  } catch (error) {
-    console.error("GET /api/teachers hata:", error);
-    errorMessage.value = "Öğretmenleri getirirken bir hata oluştu.";
-  } finally {
-    isLoading.value = false;
+      // response.data'yı önce unknown sonra Teacher[] olarak cast ediyoruz
+      teachers.value = response as unknown as Teacher[];
+    } catch (error) {
+      console.error("GET /api/teachers hata:", error);
+      errorMessage.value = "Öğretmenleri getirirken bir hata oluştu.";
+    } finally {
+      isLoading.value = false;
+    }
   }
-}
 
   // Yeni öğretmen oluşturur
   async function createTeacher(newTeacher: Partial<Teacher>) {
@@ -80,22 +80,28 @@ async function fetchTeachers() {
     }
   }
 
-  // Öğretmen siler
+  // Öğretmen silme fonksiyonu
   async function deleteTeacher(teacherId: string) {
+    // UUID kontrolü
     if (!isValidUUID(teacherId)) {
       errorMessage.value = "Geçersiz öğretmen ID'si.";
       console.error("Geçersiz UUID:", teacherId);
       return;
     }
 
+    // Silme işlemi başlatılıyor
     isLoading.value = true;
     try {
+      // Öğretmeni silmek için backend metodunu çağırıyoruz
       await backendStore.deleteTeacher(teacherId);
+      // Öğretmen başarıyla silindiyse, listeyi güncelliyoruz
       teachers.value = teachers.value.filter((teacher) => teacher.id !== teacherId);
     } catch (error) {
+      // Silme işlemi sırasında hata olursa
       console.error("DELETE /api/teachers hata:", error);
       errorMessage.value = "Öğretmeni silerken bir hata oluştu.";
     } finally {
+      // Silme işlemi tamamlandığında yükleniyor durumunu kaldırıyoruz
       isLoading.value = false;
     }
   }
