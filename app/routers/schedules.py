@@ -130,3 +130,25 @@ def delete_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
 
     # Başarılı işlemden sonra herhangi bir veri döndürmüyoruz (204)
     return
+
+
+# -----------------------------
+# Öğrenci ve Öğretmen Listelerini Al
+# -----------------------------
+
+@router.get("/students", response_model=List[schemas.StudentResponse])
+def get_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Öğrencileri alır.
+    """
+    students = crud.get_students(db, skip=skip, limit=limit)
+    return students
+
+
+@router.get("/teachers", response_model=List[schemas.TeacherResponse])
+def get_teachers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Öğretmenleri alır.
+    """
+    teachers = crud.get_teachers(db, skip=skip, limit=limit)
+    return teachers
