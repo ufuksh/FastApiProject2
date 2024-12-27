@@ -57,20 +57,19 @@ export const useStudentStore = defineStore("studentStore", () => {
 
   // Öğrenci günceller
   async function updateStudent(updatedStudent: Student) {
-    isLoading.value = true;
     try {
       const response = await backendStore.updateStudent(updatedStudent.id, updatedStudent); // PUT kullanımı
-      console.log("PUT /api/students/{id} yanıtı:", response.data);
+      console.log("PUT /api/students yanıtı:", response.data);
       const index = students.value.findIndex(student => student.id === updatedStudent.id);
       if (index !== -1) {
         students.value[index] = response.data;
       }
     } catch (error) {
       console.error("PUT /api/students hata:", error);
-    } finally {
-      isLoading.value = false;
+      errorMessage.value = "Öğrenci güncellenirken bir hata oluştu.";
     }
   }
+  
   
   
   

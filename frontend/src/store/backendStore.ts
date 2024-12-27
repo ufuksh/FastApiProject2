@@ -43,14 +43,10 @@ export const useBackendStore = defineStore("backendStore", () => {
     }
   };
 
-  const updateStudent = async (studentUuid: string, studentData: Partial<Student>): Promise<AxiosResponse<Student>> => {
-    try {
-      return await backend.patch(`/students/${studentUuid}/`, studentData);
-    } catch (error) {
-      console.error('Error updating student:', error);
-      throw error;
-    }
+  const updateStudent = async (uuid: string, data: Partial<Student>): Promise<AxiosResponse<Student>> => {
+    return await axios.put(`/students/${uuid}`, data); // PUT
   };
+  
 
   const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> => {
     try {
