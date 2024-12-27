@@ -1,5 +1,8 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+// UUID regex tanımı (UUID doğrulaması için kullanılacak)
+const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+import { ref, onMounted, computed } from "vue";
 import { useScheduleStore } from "@/store/ScheduleStore.ts";
 
 // Pinia Store
@@ -8,9 +11,9 @@ const scheduleStore = useScheduleStore();
 // Düzenleme (edit) durumunu takip eder
 const isEdit = ref(false);
 
-// Seçili (düzenlenecek) schedule
+// Seçili (düzenlenecek) program
 const selectedSchedule = ref({
-  id: null,
+  id: "",
   title: "",
   description: "",
   start_time: "",
@@ -19,7 +22,7 @@ const selectedSchedule = ref({
   teacher_id: "",
 });
 
-// Yeni schedule verisi
+// Yeni program verisi
 const newSchedule = ref({
   title: "",
   description: "",
@@ -29,10 +32,12 @@ const newSchedule = ref({
   teacher_id: "",
 });
 
-// Computed property for v-model binding
-const bindTitle = computed({
-  get: () => (isEdit.value ? selectedSchedule.value.title : newSchedule.value.title),
-  set: (value) => {
+// Computed properties for v-model binding
+const currentTitle = computed({
+  get() {
+    return isEdit.value ? selectedSchedule.value.title : newSchedule.value.title;
+  },
+  set(value) {
     if (isEdit.value) {
       selectedSchedule.value.title = value;
     } else {
@@ -41,9 +46,11 @@ const bindTitle = computed({
   },
 });
 
-const bindStartTime = computed({
-  get: () => (isEdit.value ? selectedSchedule.value.start_time : newSchedule.value.start_time),
-  set: (value) => {
+const currentStartTime = computed({
+  get() {
+    return isEdit.value ? selectedSchedule.value.start_time : newSchedule.value.start_time;
+  },
+  set(value) {
     if (isEdit.value) {
       selectedSchedule.value.start_time = value;
     } else {
@@ -52,9 +59,11 @@ const bindStartTime = computed({
   },
 });
 
-const bindEndTime = computed({
-  get: () => (isEdit.value ? selectedSchedule.value.end_time : newSchedule.value.end_time),
-  set: (value) => {
+const currentEndTime = computed({
+  get() {
+    return isEdit.value ? selectedSchedule.value.end_time : newSchedule.value.end_time;
+  },
+  set(value) {
     if (isEdit.value) {
       selectedSchedule.value.end_time = value;
     } else {
@@ -63,23 +72,62 @@ const bindEndTime = computed({
   },
 });
 
-// Tüm kayıtları al
+// Yükleniyor durumu
+const isLoading = ref(false);
+
+// Programları getir
 const getSchedules = async () => {
-  await scheduleStore.getSchedules();
+  isLoading.value = true;
+  try {
+    await scheduleStore.getSchedules();
+  } catch (error) {
+    console.error("Programlar alınırken bir hata oluştu:", error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
-// Yeni kayıt oluştur
+// Yeni program oluştur
 const createNewSchedule = async () => {
-  await scheduleStore.createSchedule(newSchedule.value);
-  // Formu temizle
-  newSchedule.value = {
-    title: "",
-    description: "",
-    start_time: "",
-    end_time: "",
-    student_id: "",
-    teacher_id: "",
-  };
+  if (
+    !newSchedule.value.title ||
+    !newSchedule.value.start_time ||
+    !newSchedule.value.end_time ||
+    !newSchedule.value.student_id ||
+    !newSchedule.value.teacher_id
+  ) {
+    alert("Lütfen tüm alanları doldurun.");
+    return;
+  }
+
+  if (!uuidRegex.test(newSchedule.value.student_id) || !uuidRegex.test(newSchedule.value.teacher_id)) {
+    alert("Geçersiz UUID formatı. Lütfen doğru bir UUID girin.");
+    return;
+  }
+
+  isLoading.value = true;
+  try {
+    newSchedule.value.start_time = new Date(newSchedule.value.start_time).toISOString();
+    newSchedule.value.end_time = new Date(newSchedule.value.end_time).toISOString();
+
+    await scheduleStore.createSchedule(newSchedule.value);
+
+    newSchedule.value = {
+      title: "",
+      description: "",
+      start_time: "",
+      end_time: "",
+      student_id: "",
+      teacher_id: "",
+    };
+
+    alert("Program başarıyla oluşturuldu!");
+    getSchedules();
+  } catch (error) {
+    console.error("Program oluşturulurken bir hata oluştu:", error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 // Düzenlemeye başla
@@ -88,27 +136,67 @@ const editSchedule = (schedule) => {
   selectedSchedule.value = { ...schedule };
 };
 
-// Güncelle
+// Programı güncelle
 const updateSchedule = async () => {
-  await scheduleStore.updateSchedule(selectedSchedule.value);
-  isEdit.value = false;
-  selectedSchedule.value = {
-    id: null,
-    title: "",
-    description: "",
-    start_time: "",
-    end_time: "",
-    student_id: "",
-    teacher_id: "",
-  };
+  if (!selectedSchedule.value.id) {
+    alert("Düzenlenecek program seçilmedi.");
+    return;
+  }
+
+  if (!uuidRegex.test(selectedSchedule.value.student_id) || !uuidRegex.test(selectedSchedule.value.teacher_id)) {
+    alert("Geçersiz UUID formatı. Lütfen doğru bir UUID girin.");
+    return;
+  }
+
+  isLoading.value = true;
+  try {
+    selectedSchedule.value.start_time = new Date(selectedSchedule.value.start_time).toISOString();
+    selectedSchedule.value.end_time = new Date(selectedSchedule.value.end_time).toISOString();
+
+    await scheduleStore.updateSchedule(selectedSchedule.value);
+
+    isEdit.value = false;
+    selectedSchedule.value = {
+      id: "",
+      title: "",
+      description: "",
+      start_time: "",
+      end_time: "",
+      student_id: "",
+      teacher_id: "",
+    };
+
+    alert("Program başarıyla güncellendi!");
+    getSchedules();
+  } catch (error) {
+    console.error("Program güncellenirken bir hata oluştu:", error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
-// Sil
+// Programı sil
 const deleteSchedule = async (id) => {
-  await scheduleStore.deleteSchedule(id);
+  if (!id) {
+    alert("Silinecek program ID'si bulunamadı.");
+    return;
+  }
+
+  if (confirm("Bu programı silmek istediğinizden emin misiniz?")) {
+    isLoading.value = true;
+    try {
+      await scheduleStore.deleteSchedule(id);
+      alert("Program başarıyla silindi!");
+      getSchedules();
+    } catch (error) {
+      console.error("Program silinirken bir hata oluştu:", error);
+    } finally {
+      isLoading.value = false;
+    }
+  }
 };
 
-// Bileşen yüklendiğinde verileri getir
+// Bileşen yüklendiğinde programları getir
 onMounted(() => {
   getSchedules();
 });
@@ -121,7 +209,7 @@ onMounted(() => {
       <div class="form-group">
         <label for="title">Başlık</label>
         <input
-          v-model="bindTitle"
+          v-model="currentSchedule.title"
           type="text"
           id="title"
           placeholder="Program başlığı"
@@ -130,10 +218,10 @@ onMounted(() => {
       </div>
 
       <div class="form-group">
-        <label for="start_time">Başlangıç Zamanı</label>
+          v-model="currentEndTime"
         <input
-          v-model="bindStartTime"
-          type="text"
+          v-model="currentStartTime"
+          type="datetime-local"
           id="start_time"
           placeholder="Başlangıç zamanı"
           required
@@ -143,16 +231,77 @@ onMounted(() => {
       <div class="form-group">
         <label for="end_time">Bitiş Zamanı</label>
         <input
-          v-model="bindEndTime"
-          type="text"
+          v-if="isEdit"
+          v-model="selectedSchedule.end_time"
+          type="datetime-local"
+          id="end_time"
+          placeholder="Bitiş zamanı"
+          required
+        />
+        <input
+          v-else
+          v-model="newSchedule.end_time"
+          type="datetime-local"
           id="end_time"
           placeholder="Bitiş zamanı"
           required
         />
       </div>
 
-      <button type="submit" class="submit-btn">
-        {{ isEdit ? "Güncelle" : "Ekle" }}
+      <div class="form-group">
+        <label for="student_id">Öğrenci</label>
+      <select
+        v-model="currentStudentId"
+        id="student_id"
+        required
+      >
+        <option value="" disabled>Öğrenci Seçin</option>
+        <option
+          v-for="student in scheduleStore.students"
+          :key="student.id"
+          :value="student.id"
+        >
+          {{ student.first_name }} {{ student.last_name }}
+        </option>
+      </select>
+      </div>
+
+      <div class="form-group">
+        <label for="teacher_id">Öğretmen</label>
+        <select
+          v-if="isEdit"
+          v-model="selectedSchedule.teacher_id"
+          id="teacher_id"
+          required
+        >
+          <option value="" disabled>Öğretmen Seçin</option>
+          <option
+            v-for="teacher in scheduleStore.teachers"
+            :key="teacher.id"
+            :value="teacher.id"
+          >
+            {{ teacher.first_name }} {{ teacher.last_name }}
+          </option>
+        </select>
+        <select
+          v-else
+          v-model="newSchedule.teacher_id"
+          id="teacher_id"
+          required
+        >
+          <option value="" disabled>Öğretmen Seçin</option>
+          <option
+            v-for="teacher in scheduleStore.teachers"
+            :key="teacher.id"
+            :value="teacher.id"
+          >
+            {{ teacher.first_name }} {{ teacher.last_name }}
+          </option>
+        </select>
+      </div>
+
+      <button type="submit" class="submit-btn" :disabled="isLoading">
+        {{ isLoading ? "Yükleniyor..." : (isEdit ? "Güncelle" : "Ekle") }}
       </button>
     </form>
   </div>
