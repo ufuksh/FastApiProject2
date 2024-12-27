@@ -27,25 +27,11 @@ const routes = [
     name: "Schedules",
     component: () => import("../components/Schedule/SchedulePage.vue"),
   },
-  // Ana sayfaya yönlendirme
-  {
-    path: "/",
-    redirect: "/home"
-  }
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
-
-// Refresh veya sayfa yüklendiğinde /home sayfasına yönlendirmek için
-router.beforeEach((to, from, next) => {
-  if (to.path === '/') {
-    next('/Home');  // "/" path geldiğinde ana sayfaya yönlendir
-  } else {
-    next();  // Diğer rotalarda normal işlem
-  }
 });
 
 export default router;
