@@ -25,6 +25,9 @@ const newTeacher = ref({
   contact_info: "",
 });
 
+// Yükleniyor durumu
+const isLoading = ref(false);
+
 // UUID regex'i
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -40,30 +43,31 @@ const getTeachers = async () => {
 
 // Yeni öğretmen oluşturur
 const createNewTeacher = async () => {
+  // Alanları kontrol et
   if (!newTeacher.value.first_name || !newTeacher.value.last_name) {
     alert("Lütfen öğretmenin adını ve soyadını giriniz.");
     return;
   }
 
-  isLoading.value = true; // Yükleme başladığında 'isLoading' true yapılıyor
+  // Yükleniyor durumu başlatılıyor
+  isLoading.value = true;
 
   try {
-    await teacherStore.createTeacher(newTeacher.value);
+    // Backend'e öğretmen ekleme isteği gönder
+    const response = await teacherStore.createTeacher(newTeacher.value);
+    console.log('Teacher created response:', response); // Backend'den gelen yanıtı kontrol edin
+
+    // Eğer ekleme başarılıysa, formu sıfırlayın
     newTeacher.value = {
       first_name: "",
       last_name: "",
       subject_specialization: "",
       contact_info: "",
     };
+
+    // Başarı durumu
     alert("Öğretmen başarıyla eklendi!");
-    getTeachers();  // Öğretmen listesini günceller
-  } catch (error) {
-    console.error("Yeni öğretmen oluşturulurken bir hata oluştu:", error);
-    alert("Bir hata oluştu. Lütfen tekrar deneyiniz.");
-  } finally {
-    isLoading.value = false; // Yükleme bittiğinde 'isLoading' false yapılıyor
-  }
-};
+
     // Öğretmen listesini güncelle
     getTeachers();
 
@@ -206,8 +210,8 @@ onMounted(() => {
         />
       </div>
 
-      <button type="submit" class="submit-btn">
-        {{ isEdit ? "Güncelle" : "Ekle" }}
+      <button type="submit" class="submit-btn" :disabled="isLoading">
+        {{ isLoading ? "Yükleniyor..." : (isEdit ? "Güncelle" : "Ekle") }}
       </button>
     </form>
   </div>
