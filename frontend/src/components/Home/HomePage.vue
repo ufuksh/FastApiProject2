@@ -1,17 +1,21 @@
 <script setup>
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
+
+// Ana sayfaya yönlendirmek için
+router.push('/home');
 </script>
 
 <template>
-<div class="home-page">
-  <div>
-    AnaSayfa
+  <div class="home-page">
+    <div>
+      AnaSayfa
+    </div>
+    <div>
+      Düzenlenecek...
+    </div>
   </div>
-  <div>
-    Düzenlenecek...
-  </div>
-</div>
-
 </template>
 
 <style scoped>
