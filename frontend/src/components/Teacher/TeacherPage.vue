@@ -15,6 +15,7 @@ const selectedTeacher = ref({
   last_name: "",
   subject_specialization: "",
   contact_info: "",
+  email: "", // Email ekleniyor
 });
 
 // Yeni öğretmen verisi
@@ -23,6 +24,7 @@ const newTeacher = ref({
   last_name: "",
   subject_specialization: "",
   contact_info: "",
+  email: "", // Email ekleniyor
 });
 
 // Yükleniyor durumu
@@ -44,8 +46,8 @@ const getTeachers = async () => {
 // Yeni öğretmen oluşturur
 const createNewTeacher = async () => {
   // Alanları kontrol et
-  if (!newTeacher.value.first_name || !newTeacher.value.last_name) {
-    alert("Lütfen öğretmenin adını ve soyadını giriniz.");
+  if (!newTeacher.value.first_name || !newTeacher.value.last_name || !newTeacher.value.email) {
+    alert("Lütfen öğretmenin adını, soyadını ve e-posta adresini giriniz.");
     return;
   }
 
@@ -63,6 +65,7 @@ const createNewTeacher = async () => {
       last_name: "",
       subject_specialization: "",
       contact_info: "",
+      email: "", // Email sıfırlanıyor
     };
 
     // Başarı durumu
@@ -103,6 +106,7 @@ const updateTeacher = async () => {
       last_name: "",
       subject_specialization: "",
       contact_info: "",
+      email: "", // Email sıfırlanıyor
     };
   } catch (error) {
     console.error("Öğretmen güncellenirken bir hata oluştu:", error);
@@ -207,6 +211,27 @@ onMounted(() => {
           type="text"
           id="contact_info"
           placeholder="Öğretmenin iletişim bilgisi"
+        />
+      </div>
+
+      <!-- E-posta alanı ekleniyor -->
+      <div class="form-group">
+        <label for="email">E-posta</label>
+        <input
+          v-if="isEdit"
+          v-model="selectedTeacher.email"
+          type="email"
+          id="email"
+          placeholder="Öğretmenin e-posta adresi"
+          required
+        />
+        <input
+          v-else
+          v-model="newTeacher.email"
+          type="email"
+          id="email"
+          placeholder="Öğretmenin e-posta adresi"
+          required
         />
       </div>
 
