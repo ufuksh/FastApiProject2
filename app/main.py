@@ -25,15 +25,10 @@ app.add_middleware(
 # FastAPI Router'ları
 # ----------------------------
 # API rotalarını /api prefix'iyle belirleyerek frontend ile çakışmayı önleriz
-# Her bir API rotası için hem /xyz hem de /xyz/ versiyonlarını kabul edeceğiz
 app.include_router(students.router, prefix="/api/students", tags=["students"])
-app.include_router(students.router, prefix="/api/students/", tags=["students"])  # Slash'lı versiyon
 app.include_router(teachers.router, prefix="/api/teachers", tags=["teachers"])
-app.include_router(teachers.router, prefix="/api/teachers/", tags=["teachers"])  # Slash'lı versiyon
 app.include_router(schedules.router, prefix="/api/schedules", tags=["schedules"])
-app.include_router(schedules.router, prefix="/api/schedules/", tags=["schedules"])  # Slash'lı versiyon
 app.include_router(users.router, prefix="/api/users", tags=["users"])
-app.include_router(users.router, prefix="/api/users/", tags=["users"])  # Slash'lı versiyon
 
 # ----------------------------
 # Statik Dosyalar
