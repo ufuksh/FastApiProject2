@@ -40,19 +40,21 @@ const getTeachers = async () => {
 
 // Yeni öğretmen oluşturur
 const createNewTeacher = async () => {
-  // Gerekli alanların kontrolü
+  // Alanları kontrol et
   if (!newTeacher.value.first_name || !newTeacher.value.last_name) {
     alert("Lütfen öğretmenin adını ve soyadını giriniz.");
     return;
   }
 
-  isLoading.value = true;  // Yükleniyor durumu aç
+  // Yükleniyor durumu başlatılıyor
+  isLoading.value = true;
 
   try {
-    // Yeni öğretmeni backend'e gönder
-    await teacherStore.createTeacher(newTeacher.value);
-    
-    // Yeni öğretmen eklendikten sonra formu sıfırlıyoruz
+    // Backend'e öğretmen ekleme isteği gönder
+    const response = await teacherStore.createTeacher(newTeacher.value);
+    console.log('Teacher created response:', response); // Backend'den gelen yanıtı kontrol edin
+
+    // Eğer ekleme başarılıysa, formu sıfırlayın
     newTeacher.value = {
       first_name: "",
       last_name: "",
@@ -60,13 +62,18 @@ const createNewTeacher = async () => {
       contact_info: "",
     };
 
-    // Başarılı işlem sonrası feedback
+    // Başarı durumu
     alert("Öğretmen başarıyla eklendi!");
+
+    // Öğretmen listesini güncelle
+    getTeachers();
+
   } catch (error) {
     console.error("Yeni öğretmen oluşturulurken bir hata oluştu:", error);
     alert("Bir hata oluştu. Lütfen tekrar deneyiniz.");
   } finally {
-    isLoading.value = false;  // Yükleniyor durumunu kapat
+    // Yükleniyor durumunu kapat
+    isLoading.value = false;
   }
 };
 
