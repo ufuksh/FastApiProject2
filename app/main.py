@@ -49,9 +49,11 @@ async def catch_all(full_path: str):
     """
     Vue Router (history mode) kullanıyorsanız, frontend URL'lerini handle eder.
     """
+    # API rotalarını dışarıda tutarak diğer URL'leri frontend'e yönlendiriyoruz
     if full_path.startswith("api"):
         return {"error": "API yolları catch-all tarafından işlenmiyor."}
 
+    # Vue.js frontend index.html dosyasını döndürüyoruz
     index_file = os.path.join(DIST_DIR, "index.html")
     if os.path.exists(index_file):
         return FileResponse(index_file)
