@@ -1,4 +1,3 @@
-# frontend/src/crud.py
 from sqlalchemy.orm import Session
 from . import models, schemas
 from uuid import UUID
@@ -23,7 +22,7 @@ def get_user_by_id(db: Session, user_id: UUID):
     Kullanıcıyı ID'ye göre getirir.
     """
     print(f"get_user_by_id: Kullanıcı ID: {user_id}")
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    return db.query(models.User).filter(models.User.id == str(user_id)).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     """
@@ -79,7 +78,7 @@ def delete_user(db: Session, user_id: UUID):
 
 def get_student(db: Session, student_id: UUID):
     print(f"get_student: Öğrenci ID={student_id}")
-    return db.query(models.Student).filter(models.Student.id == student_id).first()
+    return db.query(models.Student).filter(models.Student.id == str(student_id)).first()
 
 def get_students(db: Session, skip: int = 0, limit: int = 100):
     print(f"get_students: Skip={skip}, Limit={limit}")
@@ -125,7 +124,7 @@ def delete_student(db: Session, student_id: UUID):
 
 def get_teacher(db: Session, teacher_id: UUID):
     print(f"get_teacher: Öğretmen ID={teacher_id}")
-    return db.query(models.Teacher).filter(models.Teacher.id == teacher_id).first()
+    return db.query(models.Teacher).filter(models.Teacher.id == str(teacher_id)).first()
 
 def get_teachers(db: Session, skip: int = 0, limit: int = 100):
     print(f"get_teachers: Skip={skip}, Limit={limit}")
@@ -170,7 +169,7 @@ def delete_teacher(db: Session, teacher_id: UUID):
 
 def get_schedule(db: Session, schedule_id: UUID):
     print(f"get_schedule: Program ID={schedule_id}")
-    return db.query(models.ClassSchedule).filter(models.ClassSchedule.id == schedule_id).first()
+    return db.query(models.ClassSchedule).filter(models.ClassSchedule.id == str(schedule_id)).first()
 
 def get_schedules(db: Session, skip: int = 0, limit: int = 100):
     print(f"get_schedules: Skip={skip}, Limit={limit}")

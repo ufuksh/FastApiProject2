@@ -86,15 +86,10 @@ def update_student(student_id: UUID, student: schemas.StudentUpdate, db: Session
 
 @router.delete("/{student_id:uuid}", response_model=dict, status_code=status.HTTP_200_OK)
 def delete_student(student_id: UUID, db: Session = Depends(get_db)):
-    """
-    Belirli bir öğrenci kaydını siler.
-    """
-    print(f"DELETE: {student_id} ID'li öğrenci siliniyor.")
+    print(f"DELETE için gelen student_id: {student_id}")
     db_student = crud.get_student(db, student_id=student_id)
+    print(f"get_student sonucu: {db_student}")
     if not db_student:
-        print(f"DELETE: {student_id} ID'li öğrenci bulunamadı.")
         raise HTTPException(status_code=404, detail="Student not found")
-    
     crud.delete_student(db=db, student_id=student_id)
-    print(f"DELETE: {student_id} ID'li öğrenci silindi.")
     return {"message": "Student deleted successfully"}
