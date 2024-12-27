@@ -46,12 +46,6 @@ const createNewTeacher = async () => {
     return;
   }
 
-  // Verilerin doğruluğunu kontrol et
-  if (!isValidUUID(newTeacher.value.id)) {
-    alert("Geçersiz UUID formatı.");
-    return;
-  }
-
   isLoading.value = true;  // Yükleniyor durumu aç
 
   try {
