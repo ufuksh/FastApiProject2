@@ -30,9 +30,6 @@ def get_db():
 
 @router.post("/", response_model=schemas.ScheduleResponse, status_code=status.HTTP_201_CREATED)
 def create_schedule(schedule: schemas.ScheduleCreate, db: Session = Depends(get_db)):
-    """
-    Yeni bir program kaydı oluşturur.
-    """
     try:
         UUID(str(schedule.student_id))
         UUID(str(schedule.teacher_id))
@@ -48,7 +45,6 @@ def create_schedule(schedule: schemas.ScheduleCreate, db: Session = Depends(get_
         raise HTTPException(status_code=404, detail="Teacher not found")
 
     return crud.create_schedule(db=db, schedule=schedule)
-
 
 @router.get("/{schedule_id}", response_model=schemas.ScheduleResponse)
 def read_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
