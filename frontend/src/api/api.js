@@ -16,7 +16,7 @@ function isValidUUID(uuid) {
 export default {
   // Öğrenci işlemleri
   getStudents() {
-    return apiClient.get("/students");
+    return apiClient.get("/students/");
   },
   createStudent(data) {
     return apiClient.post("/students", data);
