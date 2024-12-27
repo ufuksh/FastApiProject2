@@ -66,7 +66,7 @@ export const useStudentStore = defineStore("studentStore", () => {
       }
       const response = await backendStore.updateStudent(updatedStudent.id, updatedStudent);
       console.log("PUT /api/students/{id} yanıtı:", response.data);
-
+  
       // Listede güncellenen öğrenciyi değiştir
       const index = students.value.findIndex(student => student.id === updatedStudent.id);
       if (index !== -1) {
@@ -79,6 +79,7 @@ export const useStudentStore = defineStore("studentStore", () => {
       isLoading.value = false;
     }
   }
+  
 
   // Öğrenci siler
   async function deleteStudent(studentId: string) {

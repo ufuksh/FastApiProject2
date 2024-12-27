@@ -19,7 +19,7 @@ export default {
     return apiClient.get(`/students/${uuid}`); // Trailing slash kaldırıldı
   },
   updateStudent(uuid, data) {
-    return apiClient.put(`/students/${uuid}`, data); // Trailing slash kaldırıldı
+    return apiClient.put(`/students/${uuid}`, data); // PUT yöntemi
   },
   deleteStudent(uuid) {
     return apiClient.delete(`/students/${uuid}`); // Trailing slash kaldırıldı
