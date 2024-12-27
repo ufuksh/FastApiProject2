@@ -1,7 +1,10 @@
 import { defineStore } from "pinia";
 import axios, { AxiosResponse } from "axios";
 
-// Öğrenci Modeli
+// -------------------------
+// Modeller
+// -------------------------
+
 interface Student {
   id: string;
   first_name: string;
@@ -12,15 +15,15 @@ interface Student {
   contact_info?: string;
 }
 
-// Öğretmen Modeli
 interface Teacher {
   id: string;
   first_name: string;
   last_name: string;
-  department: string;
+  email: string;
+  subject_specialization?: string;
+  contact_info?: string;
 }
 
-// Kullanıcı Modeli
 interface User {
   id: string;
   username: string;
@@ -28,167 +31,174 @@ interface User {
   hashed_password?: string;
 }
 
-// Program Modeli
 interface Schedule {
   id: string;
-  name: string;
+  title: string;
   description?: string;
-  date?: string;
-  // Diğer alanlar...
+  start_time: string;
+  end_time: string;
+  student_id: string;
+  teacher_id: string;
 }
+
+// UUID regex doğrulaması
+const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
 export const useBackendStore = defineStore("backendStore", () => {
   const backend = axios.create({
-    baseURL: "/api", // Vite proxy ayarınızla uyumlu
+    baseURL: "/api",
     headers: {
       "Content-Type": "application/json",
     },
   });
 
-  // Öğrenci CRUD Metodları
-  const getStudents = (): Promise<AxiosResponse<Student[]>> => backend.get("/students/");
-  const createStudent = (studentData: Partial<Student>): Promise<AxiosResponse<Student>> => backend.post("/students/", studentData);
+  // -------------------------
+  // Genel Fonksiyonlar
+  // -------------------------
+
+  const isValidUUID = (uuid: string): boolean => {
+    return uuidRegex.test(uuid);
+  };
+
+  // -------------------------
+  // Öğrenci CRUD
+  // -------------------------
+
+  const getStudents = async (): Promise<AxiosResponse<Student[]>> => {
+    return backend.get("/students/");
+  };
+
+  const createStudent = async (studentData: Partial<Student>): Promise<AxiosResponse<Student>> => {
+    return backend.post("/students/", studentData);
+  };
 
   const getStudentById = async (studentId: string): Promise<AxiosResponse<Student>> => {
-    try {
-      return await backend.get(`/students/${studentId}/`);
-    } catch (error) {
-      console.error('Error fetching student:', error);
-      throw error;
+    if (!isValidUUID(studentId)) {
+      throw new Error("Geçersiz UUID formatı");
     }
+    return backend.get(`/students/${studentId}/`);
   };
 
   const updateStudent = async (uuid: string, data: Partial<Student>): Promise<AxiosResponse<Student>> => {
-    return await backend.put(`/students/${uuid}`, data); // PUT kullanımı
+    if (!isValidUUID(uuid)) {
+      throw new Error("Geçersiz UUID formatı");
+    }
+    return backend.put(`/students/${uuid}`, data);
   };
 
   const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> => {
-    try {
-      const response = await backend.delete(`/students/${studentUuid}`);
-      return response;
-    } catch (error: any) {
-      console.error("Error deleting student:", error);
-      throw error;
+    if (!isValidUUID(studentUuid)) {
+      throw new Error("Geçersiz UUID formatı");
     }
+    return backend.delete(`/students/${studentUuid}`);
   };
 
- // Öğretmen CRUD Metodları
-const getTeachers = async (): Promise<Teacher[]> => {
-  try {
-    const response: AxiosResponse<Teacher[]> = await backend.get("/teachers/");
-    return response.data as unknown as Teacher[]; // Gelen veriyi doğru tipe dönüştür
-  } catch (error) {
-    console.error("GET /teachers hata:", error);
-    throw new Error("Öğretmenleri alırken bir hata oluştu.");
-  }
-};
+  // -------------------------
+  // Öğretmen CRUD
+  // -------------------------
 
-const createTeacher = async (teacherData: Partial<Teacher>): Promise<Teacher> => {
-  try {
-    const response: AxiosResponse<Teacher> = await backend.post("/teachers/", teacherData);
-    return response.data as unknown as Teacher; // Gelen veriyi doğru tipe dönüştür
-  } catch (error) {
-    console.error("POST /teachers hata:", error);
-    throw new Error("Öğretmen oluşturulurken bir hata oluştu.");
-  }
-};
+  const getTeachers = async (): Promise<Teacher[]> => {
+    const response = await backend.get<Teacher[]>("/teachers/");
+    return response.data;
+  };
 
-const getTeacherById = async (teacherId: string): Promise<Teacher> => {
-  try {
-    const response: AxiosResponse<Teacher> = await backend.get(`/teachers/${teacherId}/`);
-    return response.data as unknown as Teacher; // Gelen veriyi doğru tipe dönüştür
-  } catch (error) {
-    console.error("GET /teachers/{id} hata:", error);
-    throw new Error("Öğretmen detayını alırken bir hata oluştu.");
-  }
-};
+  const createTeacher = async (teacherData: Partial<Teacher>): Promise<Teacher> => {
+    const response = await backend.post<Teacher>("/teachers/", teacherData);
+    return response.data;
+  };
 
-const updateTeacher = async (uuid: string, data: Partial<Teacher>): Promise<AxiosResponse<Teacher>> => {
-  return await backend.put(`/teachers/${uuid}`, data); // PUT kullanımı
-};
+  const getTeacherById = async (teacherId: string): Promise<Teacher> => {
+    if (!isValidUUID(teacherId)) {
+      throw new Error("Geçersiz UUID formatı");
+    }
+    const response = await backend.get<Teacher>(`/teachers/${teacherId}/`);
+    return response.data;
+  };
 
-const deleteTeacher = async (teacherUuid: string): Promise<AxiosResponse<void>> => {
-  try {
-    const response = await backend.delete(`/teachers/${teacherUuid}`);
-    return response;
-  } catch (error: any) {
-    console.error("Error deleting teacher:", error);
-    throw error;
-  }
-};
+  const updateTeacher = async (uuid: string, data: Partial<Teacher>): Promise<Teacher> => {
+    if (!isValidUUID(uuid)) {
+      throw new Error("Geçersiz UUID formatı");
+    }
+    const response = await backend.put<Teacher>(`/teachers/${uuid}`, data);
+    return response.data;
+  };
 
-  // Kullanıcı CRUD Metodları
-  const getUsers = (): Promise<AxiosResponse<User[]>> => backend.get("/users/");
-  const createUser = (userData: Partial<User>): Promise<AxiosResponse<User>> => backend.post("/users/", userData);
+  const deleteTeacher = async (teacherUuid: string): Promise<void> => {
+    if (!isValidUUID(teacherUuid)) {
+      throw new Error("Geçersiz UUID formatı");
+    }
+    await backend.delete(`/teachers/${teacherUuid}`);
+  };
+
+  // -------------------------
+  // Kullanıcı CRUD
+  // -------------------------
+
+  const getUsers = async (): Promise<AxiosResponse<User[]>> => {
+    return backend.get("/users/");
+  };
+
+  const createUser = async (userData: Partial<User>): Promise<AxiosResponse<User>> => {
+    return backend.post("/users/", userData);
+  };
 
   const getUserById = async (userId: string): Promise<AxiosResponse<User>> => {
-    try {
-      return await backend.get(`/users/${userId}/`);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      throw error;
+    if (!isValidUUID(userId)) {
+      throw new Error("Geçersiz UUID formatı");
     }
+    return backend.get(`/users/${userId}/`);
   };
 
   const updateUser = async (uuid: string, data: Partial<User>): Promise<AxiosResponse<User>> => {
-    return await backend.put(`/users/${uuid}`, data);
+    if (!isValidUUID(uuid)) {
+      throw new Error("Geçersiz UUID formatı");
+    }
+    return backend.put(`/users/${uuid}`, data);
   };
 
   const deleteUser = async (userUuid: string): Promise<AxiosResponse<void>> => {
-    try {
-      const response = await backend.delete(`/users/${userUuid}`);
-      return response;
-    } catch (error: any) {
-      console.error("Error deleting user:", error);
-      throw error;
+    if (!isValidUUID(userUuid)) {
+      throw new Error("Geçersiz UUID formatı");
     }
+    return backend.delete(`/users/${userUuid}`);
   };
 
-  // Program CRUD Metodları
+  // -------------------------
+  // Program CRUD
+  // -------------------------
+
   const getSchedules = async (): Promise<AxiosResponse<Schedule[]>> => {
-    try {
-      return await backend.get("/schedules/");
-    } catch (error) {
-      console.error("Error fetching schedules:", error);
-      throw error;
-    }
+    return backend.get("/schedules/");
   };
 
   const createSchedule = async (scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => {
-    try {
-      return await backend.post("/schedules/", scheduleData);
-    } catch (error) {
-      console.error("Error creating schedule:", error);
-      throw error;
-    }
+    return backend.post("/schedules/", scheduleData);
   };
 
   const getScheduleById = async (scheduleId: string): Promise<AxiosResponse<Schedule>> => {
-    try {
-      return await backend.get(`/schedules/${scheduleId}/`);
-    } catch (error) {
-      console.error("Error fetching schedule:", error);
-      throw error;
+    if (!isValidUUID(scheduleId)) {
+      throw new Error("Geçersiz UUID formatı");
     }
+    return backend.get(`/schedules/${scheduleId}/`);
   };
 
   const updateSchedule = async (scheduleId: string, scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => {
-    try {
-      return await backend.put(`/schedules/${scheduleId}/`, scheduleData);
-    } catch (error) {
-      console.error("Error updating schedule:", error);
-      throw error;
+    if (!isValidUUID(scheduleId)) {
+      throw new Error("Geçersiz UUID formatı");
     }
+    return backend.put(`/schedules/${scheduleId}/`, scheduleData);
   };
 
   const deleteSchedule = async (scheduleId: string): Promise<AxiosResponse<void>> => {
-    try {
-      return await backend.delete(`/schedules/${scheduleId}/`);
-    } catch (error) {
-      console.error("Error deleting schedule:", error);
-      throw error;
+    if (!isValidUUID(scheduleId)) {
+      throw new Error("Geçersiz UUID formatı");
     }
+    return backend.delete(`/schedules/${scheduleId}/`);
   };
+
+  // -------------------------
+  // Return Fonksiyonları
+  // -------------------------
 
   return {
     // Öğrenci Metodları

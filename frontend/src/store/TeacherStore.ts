@@ -68,7 +68,7 @@ export const useTeacherStore = defineStore("teacherStore", () => {
       const response = await backendStore.updateTeacher(updatedTeacher.id, updatedTeacher);
       const index = teachers.value.findIndex((teacher) => teacher.id === updatedTeacher.id);
       if (index !== -1) {
-        teachers.value[index] = response.data as unknown as Teacher; // Güncellenmiş öğretmeni listeye ekler
+        teachers.value[index] = response as unknown as Teacher; // Güncellenmiş öğretmeni listeye ekler
       } else {
         console.warn("Güncellenmek istenen öğretmen listede bulunamadı.");
       }
