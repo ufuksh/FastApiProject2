@@ -8,7 +8,7 @@
     AnaSayfa
   </div>
   <div>
-    Düzenlenecek...
+    Düzenlenecek..auuuuu
   </div>
 </div>
 

@@ -1,10 +1,8 @@
-import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-
-# Router dosyalarını import et
+import os
 from .routers import students, teachers, schedules, users
 
 # FastAPI uygulaması
@@ -22,9 +20,8 @@ app.add_middleware(
 )
 
 # ----------------------------
-# FastAPI Router'ları
+# API rotaları
 # ----------------------------
-# API rotalarını /api prefix'iyle belirleyerek frontend ile çakışmayı önleriz
 app.include_router(students.router, prefix="/api/students", tags=["students"])
 app.include_router(teachers.router, prefix="/api/teachers", tags=["teachers"])
 app.include_router(schedules.router, prefix="/api/schedules", tags=["schedules"])
