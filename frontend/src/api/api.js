@@ -84,9 +84,9 @@ export default {
       return Promise.reject(new Error("Geçersiz UUID formatı."));
     }
     return apiClient.delete(`/teachers/${uuid}`);
-  },
+},
 
-  // Program işlemleri
+// Program işlemleri
   getSchedules() {
     return apiClient.get("/schedules");
   },
@@ -109,6 +109,6 @@ export default {
     if (!isValidUUID(uuid)) {
       return Promise.reject(new Error("Geçersiz UUID formatı."));
     }
-    return apiClient.delete(`/schedules/${uuid}`);
+    return apiClient.delete(`/schedules/${uuid}`);  // Correct URL path
   },
 };

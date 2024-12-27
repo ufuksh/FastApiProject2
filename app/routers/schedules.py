@@ -108,22 +108,25 @@ def update_schedule(schedule_id: UUID, schedule: schemas.ScheduleUpdate, db: Ses
 
 @router.delete("/{schedule_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
+    """
+    Belirli bir program kaydını siler.
+    """
     try:
+        # UUID doğrulaması
         UUID(str(schedule_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format")
 
+    # Programın mevcut olup olmadığını kontrol et
     db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
     if not db_schedule:
         raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
 
     try:
+        # Programı sil
         crud.delete_schedule(db=db, schedule_id=schedule_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting schedule: {str(e)}")
-@router.options("/{schedule_id}")
-def options_schedule(schedule_id: UUID):
-    return JSONResponse(
-        headers={"Allow": "GET, POST, PUT, DELETE, OPTIONS"},
-        content={"detail": "Available methods: GET, POST, PUT, DELETE, OPTIONS"}
-    )
+
+    # Başarılı işlemden sonra herhangi bir veri döndürmüyoruz (204)
+    return
