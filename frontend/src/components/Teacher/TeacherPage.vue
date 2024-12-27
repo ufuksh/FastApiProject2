@@ -61,12 +61,14 @@ const editTeacher = (teacher) => {
 
 // Güncelle
 const updateTeacher = async () => {
+  // UUID doğrulaması
   if (!isValidUUID(selectedTeacher.value.id)) {
     alert("Geçersiz öğretmen ID'si.");
     return;
   }
   try {
     await teacherStore.updateTeacher(selectedTeacher.value);
+    // Güncellenen öğretmeni sıfırlıyoruz
     isEdit.value = false;
     selectedTeacher.value = {
       id: "",
