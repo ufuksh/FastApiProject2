@@ -1,4 +1,3 @@
-// frontend/src/store/ScheduleStore.ts
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useBackendStore } from "./backendStore"; // Backend işlemleri için import
@@ -102,11 +101,11 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
       errorMessage.value = "Geçersiz program ID'si.";
       return;
     }
-  
+
     isLoading.value = true;
     try {
       await backendStore.deleteSchedule(scheduleId);
-      schedules.value = schedules.value.filter((s) => s.id !== scheduleId);
+      schedules.value = schedules.value.filter((s) => s.id !== scheduleId); // Silinen programı listeden çıkarıyoruz
     } catch (error) {
       console.error("DELETE /api/schedules hata:", error);
       errorMessage.value = "Programı silerken bir hata oluştu.";
