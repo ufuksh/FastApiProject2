@@ -19,7 +19,7 @@ export default {
     return apiClient.get("/students/");
   },
   createStudent(data) {
-    return apiClient.post("/students", data);
+    return apiClient.post("/students/", data);
   },
   getStudentByUuid(uuid) {
     if (!isValidUUID(uuid)) {
@@ -42,10 +42,10 @@ export default {
 
   // Kullanıcı işlemleri
   getUsers() {
-    return apiClient.get("/users");
+    return apiClient.get("/users/");
   },
   createUser(data) {
-    return apiClient.post("/users", data);
+    return apiClient.post("/users/", data);
   },
   updateUser(uuid, data) {
     if (!isValidUUID(uuid)) {
@@ -62,10 +62,10 @@ export default {
 
   // Öğretmen işlemleri
   getTeachers() {
-    return apiClient.get("/teachers");
+    return apiClient.get("/teachers/");
   },
   createTeacher(data) {
-    return apiClient.post("/teachers", data);
+    return apiClient.post("/teachers/", data);
   },
   getTeacherByUuid(uuid) {
     if (!isValidUUID(uuid)) {
@@ -88,10 +88,10 @@ export default {
 
   // Program işlemleri
   getSchedules() {
-    return apiClient.get("/schedules");
+    return apiClient.get("/schedules/");
   },
   createSchedule(data) {
-    return apiClient.post("/schedules", data);
+    return apiClient.post("/schedules/", data);
   },
   getScheduleByUuid(uuid) {
     if (!isValidUUID(uuid)) {
