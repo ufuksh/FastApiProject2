@@ -44,8 +44,8 @@ export const useBackendStore = defineStore("backendStore", () => {
   };
 
   const updateStudent = async (uuid: string, data: Partial<Student>): Promise<AxiosResponse<Student>> => {
-    return await axios.put(`/students/${uuid}`, data); // PUT
-  };
+    return await backend.put(`/students/${uuid}`, data); // PUT kullanımı
+  };  
   
 
   const deleteStudent = async (studentUuid: string): Promise<AxiosResponse<void>> => {
