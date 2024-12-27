@@ -7,7 +7,7 @@ from .. import schemas, crud
 from ..database import SessionLocal
 
 router = APIRouter(
-    prefix="",
+    prefix="",  # Prefix boş olacak şekilde ayarlanmıştır
     tags=["schedules"],
 )
 
@@ -33,23 +33,22 @@ def create_schedule(schedule: schemas.ScheduleCreate, db: Session = Depends(get_
     """
     Yeni bir program kaydı oluşturur.
     """
-    try:
-        UUID(str(schedule.student_id))
-        UUID(str(schedule.teacher_id))
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid UUID format for student_id or teacher_id")
+    # UUID doğrulama
+    for field, value in {"student_id": schedule.student_id, "teacher_id": schedule.teacher_id}.items():
+        try:
+            UUID(str(value))
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid UUID format for {field}")
 
-    student = crud.get_student(db, schedule.student_id)
-    if not student:
+    # Öğrenci ve öğretmen varlığını kontrol et
+    if not (student := crud.get_student(db, schedule.student_id)):
         raise HTTPException(status_code=404, detail=f"Student with id {schedule.student_id} not found")
-
-    teacher = crud.get_teacher(db, schedule.teacher_id)
-    if not teacher:
+    if not (teacher := crud.get_teacher(db, schedule.teacher_id)):
         raise HTTPException(status_code=404, detail=f"Teacher with id {schedule.teacher_id} not found")
 
+    # Yeni program oluştur
     try:
-        new_schedule = crud.create_schedule(db=db, schedule=schedule)
-        return new_schedule
+        return crud.create_schedule(db=db, schedule=schedule)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while creating the schedule: {str(e)}")
 
@@ -59,13 +58,14 @@ def read_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir programı ID'ye göre getirir.
     """
+    # UUID doğrulama
     try:
         UUID(str(schedule_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format for schedule_id")
 
-    db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
-    if not db_schedule:
+    # Programı getir
+    if not (db_schedule := crud.get_schedule(db, schedule_id=schedule_id)):
         raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
 
     return db_schedule
@@ -77,8 +77,7 @@ def read_schedules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
     Tüm programları getirir.
     """
     try:
-        schedules = crud.get_schedules(db, skip=skip, limit=limit)
-        return schedules
+        return crud.get_schedules(db, skip=skip, limit=limit)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching schedules: {str(e)}")
 
@@ -88,18 +87,19 @@ def update_schedule(schedule_id: UUID, schedule: schemas.ScheduleUpdate, db: Ses
     """
     Belirli bir programı günceller.
     """
+    # UUID doğrulama
     try:
         UUID(str(schedule_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format for schedule_id")
 
-    db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
-    if not db_schedule:
+    # Programın varlığını kontrol et
+    if not (db_schedule := crud.get_schedule(db, schedule_id=schedule_id)):
         raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
 
+    # Programı güncelle
     try:
-        updated_schedule = crud.update_schedule(db=db, schedule_id=schedule_id, schedule=schedule)
-        return updated_schedule
+        return crud.update_schedule(db=db, schedule_id=schedule_id, schedule=schedule)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating schedule: {str(e)}")
 
@@ -109,15 +109,17 @@ def delete_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
     """
     Belirli bir program kaydını siler.
     """
+    # UUID doğrulama
     try:
         UUID(str(schedule_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format")
 
-    db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
-    if not db_schedule:
+    # Programın varlığını kontrol et
+    if not (db_schedule := crud.get_schedule(db, schedule_id=schedule_id)):
         raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
 
+    # Programı sil
     try:
         crud.delete_schedule(db=db, schedule_id=schedule_id)
         return {"message": "Schedule deleted successfully"}
