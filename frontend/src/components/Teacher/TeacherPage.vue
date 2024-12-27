@@ -25,9 +25,11 @@ const newTeacher = ref({
   contact_info: "",
 });
 
+// UUID regex'i
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // UUID doğrulama fonksiyonu
 const isValidUUID = (uuid) => {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(uuid);
 };
 
@@ -79,7 +81,6 @@ const updateTeacher = async () => {
 };
 
 // Öğretmeni siler
-// Öğretmen siler
 const deleteTeacher = async (id) => {
   if (!isValidUUID(id)) {
     alert("Geçersiz öğretmen ID'si.");
@@ -87,12 +88,9 @@ const deleteTeacher = async (id) => {
   }
   if (confirm("Bu öğretmeni silmek istediğinize emin misiniz?")) {
     try {
-      await teacherStore.deleteTeacher(id);  // ID doğru formatta olmalı
-      // Öğretmen başarıyla silindiyse, listeyi güncelliyoruz
-      teacherStore.teachers = teacherStore.teachers.filter(teacher => teacher.id !== id);
+      await teacherStore.deleteTeacher(id);
     } catch (error) {
       console.error("Öğretmen silinirken bir hata oluştu:", error);
-      alert("Öğretmeni silerken bir hata oluştu.");
     }
   }
 };
