@@ -20,7 +20,11 @@ const fetchData = async () => {
     ]);
     // Gelen verileri ref'lere atama
     students.value = studentsRes.data || [];
-    teachers.value = teachersRes.data || [];
+    teachers.value = teachersRes.data.map((teacher) => ({
+      ...teacher,
+      specialization: teacher.specialization || "Bilinmiyor",
+      contact: teacher.contact || "Bilinmiyor",
+    }));
     schedules.value = schedulesRes.data || [];
   } catch (error) {
     console.error("Veriler alınırken hata oluştu:", error);
@@ -69,18 +73,16 @@ onMounted(() => {
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Ad</th>
-              <th>Soyad</th>
-              <th>Bölüm</th>
+              <th>Ad Soyad</th>
+              <th>Uzmanlık Alanı</th>
+              <th>İletişim</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="teacher in teachers" :key="teacher.id">
-              <td>{{ teacher.id }}</td>
-              <td>{{ teacher.first_name }}</td>
-              <td>{{ teacher.last_name }}</td>
-              <td>{{ teacher.department }}</td>
+              <td>{{ teacher.first_name }} {{ teacher.last_name }}</td>
+              <td>{{ teacher.specialization }}</td>
+              <td>{{ teacher.contact }}</td>
             </tr>
           </tbody>
         </table>
