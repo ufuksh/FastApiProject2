@@ -7,7 +7,7 @@ from .. import schemas, crud
 from ..database import SessionLocal
 
 router = APIRouter(
-    prefix="",
+    prefix="/api/schedules",
     tags=["schedules"],
 )
 
@@ -34,8 +34,8 @@ def create_schedule(schedule: schemas.ScheduleCreate, db: Session = Depends(get_
     Yeni bir program kaydı oluşturur.
     """
     try:
-        if not isinstance(schedule.student_id, UUID) or not isinstance(schedule.teacher_id, UUID):
-            raise ValueError
+        UUID(str(schedule.student_id))
+        UUID(str(schedule.teacher_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format for student_id or teacher_id")
 
@@ -60,8 +60,7 @@ def read_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
     Belirli bir programı ID'ye göre getirir.
     """
     try:
-        if not isinstance(schedule_id, UUID):
-            raise ValueError
+        UUID(str(schedule_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format for schedule_id")
 
@@ -90,8 +89,7 @@ def update_schedule(schedule_id: UUID, schedule: schemas.ScheduleUpdate, db: Ses
     Belirli bir programı günceller.
     """
     try:
-        if not isinstance(schedule_id, UUID):
-            raise ValueError
+        UUID(str(schedule_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format for schedule_id")
 
@@ -112,16 +110,16 @@ def delete_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
     Belirli bir program kaydını siler.
     """
     try:
-        UUID(str(schedule_id))  # UUID doğrulaması
+        UUID(str(schedule_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format")
 
     db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
     if not db_schedule:
-        raise HTTPException(status_code=404, detail="Schedule not found")
+        raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
 
     try:
         crud.delete_schedule(db=db, schedule_id=schedule_id)
         return {"message": "Schedule deleted successfully"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error deleting schedule: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting schedule: {str(e)}")
