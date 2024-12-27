@@ -65,10 +65,8 @@ def read_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
         UUID(str(schedule_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format for schedule_id")
-    db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
     # Programı getir
     if not (db_schedule := crud.get_schedule(db, schedule_id=schedule_id)):
-        raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
         raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
 
     return db_schedule
@@ -109,22 +107,16 @@ def update_schedule(schedule_id: UUID, schedule: schemas.ScheduleUpdate, db: Ses
 
 @router.delete("/{schedule_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_schedule(schedule_id: UUID, db: Session = Depends(get_db)):
-    """
-    Belirli bir program kaydını siler.
-    """
-    # UUID doğrulama
     try:
         UUID(str(schedule_id))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format")
 
-    # Programın varlığını kontrol et
-    if not (db_schedule := crud.get_schedule(db, schedule_id=schedule_id)):
+    db_schedule = crud.get_schedule(db, schedule_id=schedule_id)
+    if not db_schedule:
         raise HTTPException(status_code=404, detail=f"Schedule with id {schedule_id} not found")
 
-    # Programı sil
     try:
         crud.delete_schedule(db=db, schedule_id=schedule_id)
-        return {"message": "Schedule deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting schedule: {str(e)}")
