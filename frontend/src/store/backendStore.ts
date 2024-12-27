@@ -146,7 +146,7 @@ export const useBackendStore = defineStore("backendStore", () => {
     if (!isValidUUID(userId)) {
       throw new Error("Geçersiz UUID formatı");
     }
-    return backend.get(`/users/${userId}/`);
+    return backend.get(`/users/${userId}`);
   };
 
   const updateUser = async (uuid: string, data: Partial<User>): Promise<AxiosResponse<User>> => {
@@ -179,21 +179,21 @@ export const useBackendStore = defineStore("backendStore", () => {
     if (!isValidUUID(scheduleId)) {
       throw new Error("Geçersiz UUID formatı");
     }
-    return backend.get(`/schedules/${scheduleId}/`);
+    return backend.get(`/schedules/${scheduleId}`);
   };
 
   const updateSchedule = async (scheduleId: string, scheduleData: Partial<Schedule>): Promise<AxiosResponse<Schedule>> => {
     if (!isValidUUID(scheduleId)) {
       throw new Error("Geçersiz UUID formatı");
     }
-    return backend.put(`/schedules/${scheduleId}/`, scheduleData);
+    return backend.put(`/schedules/${scheduleId}`, scheduleData);
   };
 
   const deleteSchedule = async (scheduleId: string): Promise<AxiosResponse<void>> => {
     if (!isValidUUID(scheduleId)) {
       throw new Error("Geçersiz UUID formatı");
     }
-    return backend.delete(`/schedules/${scheduleId}/`);
+    return backend.delete(`/schedules/${scheduleId}`);
   };
 
   // -------------------------
